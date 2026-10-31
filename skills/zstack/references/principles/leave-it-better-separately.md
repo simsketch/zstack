@@ -15,6 +15,5 @@ into an unreviewed second feature.
   or is a pure typo, dead import or comment fix.
 - The file is outside solo classes and is not leased to another lane.
 - The commit subject starts with `drive-by:` (or the ticket key) and the PR lists it under `## Drive-bys`.
-- Anything larger is listed under `## Follow-ups` with file:line and a reproduction or reasoning.
-
-See `references/drive-by.md` for the full rule.
+- Anything larger is listed under `## Follow-ups` with file:line and a reproduction or reasoning
+  (full rule in the router's drive-by section).

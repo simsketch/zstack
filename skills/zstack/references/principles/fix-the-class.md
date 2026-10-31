@@ -14,11 +14,7 @@ growing back.
 
 - The class is named in one line and written as a searchable pattern (a `git grep` regex at minimum).
 - Every app and package in the repo was searched, plus any sibling repos listed in `sweep_repos=`.
-- Each hit is classified confirmed, suspect or safe, with a file:line and one sentence of reasoning.
+- Each hit is classified confirmed, suspect or safe, with a file:line and one sentence of reasoning, in a
+  sweep report saved to `.git/zstack/sweeps/<date>-<class>.md` (from `templates/sweep-report.md`).
 - Confirmed hits are fixed in this change or ticketed by impact; a guardrail lands in its own commit.
 - Trivial one-offs carry a one-line "no class: <reason>" note instead of a sweep.
-
-## Script the check
-
-The sweep report goes to `.git/zstack/sweeps/<date>-<class>.md` from `templates/sweep-report.md`, so the
-next similar sweep starts from it.

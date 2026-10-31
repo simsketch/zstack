@@ -19,4 +19,4 @@ contains the sha) makes the claim cheap to verify and expensive to fake.
 ## Script the check
 
 `scripts/zcheck.sh --verify <sha> <name>...` exits 0 only when each named check was recorded clean, at
-that sha, with a non-zero test count.
+that sha, and did not record zero tests.

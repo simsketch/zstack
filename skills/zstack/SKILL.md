@@ -1,6 +1,6 @@
 ---
 name: zstack
-description: Routes a non-trivial engineering goal to a playbook, an execution shape and a set of cited principles. Use for bugs with an unknown cause, new features, refactors, performance work, code or PR review, opening and landing PRs, "what should I test today", running work in parallel or overnight, "is it live" or "did it ship", taking over another agent's work, pausing cleanly, or when the human says they are busy testing. Answers to /zstack. Skip for one-line questions and trivial edits.
+description: Routes a non-trivial engineering goal to a playbook, an execution shape and a set of cited principles. Use for bugs and bug tickets (cause known or unknown), explaining how a system works or why it is built that way across files, choosing between approaches ("which approach should we take?"), new features, refactors, performance work, code or PR review, opening and landing PRs, "what should I test today", running work in parallel or overnight, "is it live" or "did it ship", taking over another agent's work, pausing cleanly, or when the human says they are busy testing. Answers to /zstack. Skip for one-line questions and trivial edits.
 license: MIT
 metadata:
   version: "1.0.0"
@@ -65,9 +65,10 @@ Work through these seven steps in order, every time.
 | inline | this session does the work itself | one area, small, done is clear, or the harness cannot run subagents |
 | one subagent | one background worker in its own worktree; this session coordinates | one area, but long enough to crowd your context, or the human wants to keep talking |
 | lane | 2-6 workers in parallel worktrees, one coordinator, merges one at a time | several pieces that each merge and revert on their own, with predicted files disjoint |
-| fleet wave | many lanes across repos or accounts with lane leads and a merge desk | zstack-fleet installed, its accounts check green, quota under pace, merge mode Normal |
+| fleet wave | many lanes across repos or accounts with lane leads, a merge desk and a safety net | zstack-fleet installed, its accounts check green, quota under pace, merge mode Normal |
 
-Read these signals in order. The first one that limits the shape wins.
+Read every signal, in order. Each one can only shrink the shape, never grow it, and the smallest shape
+left after all six is the one you run.
 
 1. **Definition-of-done clarity.** While done is unclear, stay at inline or one subagent.
 2. **Predicted file overlap.** Pieces that are likely to edit the same files join one lane or run in
@@ -78,10 +79,11 @@ Read these signals in order. The first one that limits the shape wins.
    With no background subagents, lanes run in sequence, or as headless runs where the harness has a
    headless mode.
 5. **Fleet signals** (only with zstack-fleet installed): merge mode, quota pace, CI budget headroom and
-   drift of the open queue.
+   drift of the open queue. A Slow or Drain merge mode caps new work and points workers at open PRs.
 6. **The human's state.** In human-busy mode, prefer shapes that need no answer soon.
 
-When you choose a smaller shape than the work wanted, say why in one line, for example: "wanted a lane;
+When you choose a smaller shape than the work wanted, name the signal that capped it in one line, for
+example: "wanted a lane;
 this harness has no background subagents, so the three pieces run in sequence."
 
 **Fleet hand-off.** With zstack-fleet installed, read its SKILL.md before choosing fleet wave; without it
@@ -222,7 +224,8 @@ full brief shape is `templates/worker-brief.md`):
 3. The principles in force, by name.
 4. The drive-by rule, no CI polling loops, no credential reads, and "report any guard that blocks you".
 
-A worker that receives a brief without these lines should ask for them before starting.
+A worker that receives a brief without these lines asks for them before starting; a headless run that
+cannot ask stops and reports the missing lines.
 
 ## Scripts and templates
 
