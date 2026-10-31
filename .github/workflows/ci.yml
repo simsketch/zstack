@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install validators
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q shellcheck
+          pip install skills-ref
+
+      - name: shellcheck
+        run: shellcheck scripts/*.sh install.sh hooks/*.sh tests/*.sh tests/stubs/gh
+
+      - name: Manifests and Agent Skills validation
+        run: bash scripts/check-manifests.sh
+
+      - name: Repo tests
+        run: bash tests/run.sh
+
+      - name: Skill script tests
+        run: bash skills/zstack/tests/run.sh
+
+      - name: Pre-publish grep
+        env:
+          ZSTACK_PRIVATE_TERMS: ${{ secrets.ZSTACK_PRIVATE_TERMS }}
+        run: bash scripts/prepublish-grep.sh

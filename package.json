@@ -1,0 +1,9 @@
+{
+  "name": "zstack",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "pi": {
+    "skills": ["./skills/zstack"]
+  }
+}

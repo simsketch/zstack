@@ -1,0 +1,10 @@
+{
+  "name": "zstack",
+  "version": "1.0.0",
+  "description": "A harness-agnostic engineering skill that routes each task to a playbook and a set of working principles, with small scripts for checks, evidence and handoffs.",
+  "author": { "name": "Elon Zito" },
+  "homepage": "https://github.com/<owner>/zstack",
+  "repository": "https://github.com/<owner>/zstack",
+  "license": "MIT",
+  "keywords": ["skills", "playbooks", "engineering", "workflow", "agents", "debugging", "code-review"]
+}

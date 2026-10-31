@@ -1,0 +1,6 @@
+{
+  "name": "zstack",
+  "version": "1.0.0",
+  "description": "A harness-agnostic engineering skill that routes each task to a playbook and a set of working principles, with small scripts for checks, evidence and handoffs.",
+  "contextFileName": "GEMINI.md"
+}

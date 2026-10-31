@@ -1,0 +1,13 @@
+{
+  "name": "zstack",
+  "owner": { "name": "Elon Zito" },
+  "description": "zStack: playbooks and working principles for engineering work in any agent harness.",
+  "plugins": [
+    {
+      "name": "zstack",
+      "source": "./",
+      "description": "A harness-agnostic engineering skill that routes each task to a playbook and a set of working principles, with small scripts for checks, evidence and handoffs.",
+      "version": "1.0.0"
+    }
+  ]
+}

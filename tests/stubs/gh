@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Test stub for gh. Point ZSTACK_GH at this file.
+# ZSTACK_STUB_GH_LOG: file that receives one line of arguments per call.
+# ZSTACK_STUB_GH_OUT: file whose contents are printed to stdout.
+# ZSTACK_STUB_GH_EXIT: exit code to return (default 0).
+if [ -n "${ZSTACK_STUB_GH_LOG:-}" ]; then
+  printf '%s\n' "$*" >> "$ZSTACK_STUB_GH_LOG"
+fi
+if [ -n "${ZSTACK_STUB_GH_OUT:-}" ] && [ -f "$ZSTACK_STUB_GH_OUT" ]; then
+  cat "$ZSTACK_STUB_GH_OUT"
+fi
+exit "${ZSTACK_STUB_GH_EXIT:-0}"
