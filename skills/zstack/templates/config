@@ -1,0 +1,23 @@
+# zstack per-repo config. Copy to .git/zstack/config and edit by hand.
+# Format: key=value, one per line. Lines starting with # are comments.
+
+# Trust ladder per PR class: L0 propose, L1 open PRs, L2 merge on evidence, L3 batch (needs zstack-fleet).
+# Only the human raises a level. solo is capped at L1 whatever is written here.
+trust.docs=L1
+trust.tests=L1
+trust.small-ui=L1
+trust.feature=L1
+trust.solo=L0
+
+# Date a level was last set or restored (ISO). A revert in that class after this date drops it one level.
+# With no date, any revert in the class drops it.
+# trust.docs.since=2026-11-01
+
+# Sibling repos that bug-class-sweep also searches, space separated.
+sweep_repos=
+
+# Command used to send the human one short message when the decision page changes. Empty means none.
+notify_cmd=
+
+# Base branch PRs target.
+base=main
