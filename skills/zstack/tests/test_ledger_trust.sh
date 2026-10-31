@@ -64,6 +64,16 @@ assert_eq L3 "$(col feature 6)" "fleet skill folder enables L3"
 for k in $(seq 1 25); do python3 "$LEDGER" add --pr "$((100 + k))" --sha "5010$(printf '%036d' "$k")" --class solo >/dev/null; done
 assert_eq L1 "$(col solo 7)" "solo suggestion stays L1 with a clean record"
 
+# A revert always costs a level below the cap (caps apply before the drop).
+rm -rf "$HOME/.agents/skills/zstack-fleet"
+python3 "$LEDGER" add --pr 300 --sha "feed$(printf '%036d' 1)" --class feature >/dev/null
+python3 "$LEDGER" flag --sha "feed$(printf '%036d' 1)" --reverted >/dev/null
+assert_eq L1 "$(col feature 6)" "feature L3 without fleet plus a revert is effective L1"
+bash "$TRUST" --gate feature >/dev/null 2>&1; RC=$?
+assert_eq 1 "$RC" "--gate feature fails after the revert"
+python3 "$LEDGER" flag --sha "5010$(printf '%036d' 1)" --reverted >/dev/null
+assert_eq L0 "$(col solo 6)" "solo L3 plus a revert is effective L0"
+
 # Export then import into an empty state gives identical stats.
 python3 "$LEDGER" export "$SANDBOX/ledger-export.jsonl" >/dev/null; RC=$?
 assert_eq 0 "$RC" "export exits 0"
@@ -77,5 +87,8 @@ assert_eq "$BEFORE" "$(python3 "$LEDGER" stats)" "importing twice dedupes"
 OUT="$(python3 "$LEDGER" import "$SANDBOX/nope.jsonl" 2>&1)"; RC=$?
 assert_eq 1 "$RC" "importing a missing file fails"
 assert_not_contains "$OUT" "Traceback" "missing import file prints no traceback"
+OUT="$(ZSTACK_NOW=yesterday python3 "$LEDGER" add --pr 9 --sha abc9999 --class docs 2>&1)"; RC=$?
+assert_eq 1 "$RC" "a bad ZSTACK_NOW fails"
+assert_eq 1 "$(printf '%s\n' "$OUT" | wc -l | tr -d ' ')" "a bad ZSTACK_NOW prints one line"
 
 finish

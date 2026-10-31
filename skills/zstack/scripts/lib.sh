@@ -8,7 +8,6 @@
 #   zs_gh <args...>              run gh as ${ZSTACK_GH:-gh}
 #   zs_config_get <key> [file]   print the value of key=value from the state
 #                                config (default $(zs_state_dir)/config)
-#   zs_python                    print the python3 to use, or fail
 
 zs_die() {
   local prog="$1"; shift
@@ -51,9 +50,4 @@ zs_config_get() {
     fi
   done < "$file"
   return 1
-}
-
-zs_python() {
-  command -v python3 >/dev/null 2>&1 || { echo "python3 is required" >&2; return 1; }
-  printf '%s\n' python3
 }

@@ -413,7 +413,9 @@ def cmd_generate(a):
 
 ITEM = re.compile(r"^\s*-\s+\[[xX]\]\s+(.*?)\s+result:\s*(pass|fail)\b[:\s-]*(.*)$", re.I)
 CHECKED_NO_RESULT = re.compile(r"^\s*-\s+\[[xX]\]\s+(.*?)(?:\s+result:\s*)?$")
-REF = re.compile(r"\b(PR|Issue) #(\d+)")
+# Items start with refs, each followed by its title: "PR #1 Title; PR #4 Other — ...".
+# Only a ref at the start or right after "; " counts, so "PR #40" inside a title does not.
+LEAD_REF = re.compile(r"(?:^|;\s+)(PR|Issue) #(\d+)\b")
 
 
 def cmd_record(a):
@@ -424,7 +426,7 @@ def cmd_record(a):
     name = os.path.basename(a.file)
     repo = ["--repo", a.repo] if a.repo else []
     section, sub = "", ""
-    done = passed = failed = 0
+    done = passed = failed = posted = 0
     for line in lines:
         h = HEADING.match(line)
         if h:
@@ -442,7 +444,7 @@ def cmd_record(a):
             continue
         text, result, note = m.group(1).strip(), m.group(2).lower(), m.group(3).strip()
         head = text.split(" — ", 1)[0]
-        refs = REF.findall(head) if section.lower() != "smoke" else []
+        refs = LEAD_REF.findall(head) if section.lower() != "smoke" else []
         where = section + (" / " + sub if sub else "")
         body = "Manual test %s (%s, %s).\n\n%s" % (result.upper(), where, name, text)
         if note:
@@ -452,7 +454,12 @@ def cmd_record(a):
             if a.dry_run:
                 print("gh " + " ".join(shlex.quote(x) for x in args))
             else:
-                gh(args)
+                try:
+                    gh(args)
+                except Fail as e:
+                    raise Fail("%s (posted %d comments before this; rerun only the rest)" % (e, posted))
+                posted += 1
+                print("posted %s on %s #%s" % (result, kind, num))
         if result == "fail":
             failed += 1
             what = "; ".join("%s #%s" % r for r in refs) if refs else "smoke"

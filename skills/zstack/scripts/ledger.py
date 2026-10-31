@@ -16,11 +16,12 @@ Suggested level (advice only): L2 when a class has >= 20 merges, a revert
 rate <= 5% and a post-merge bug rate <= 5%; L1 otherwise; solo never above L1.
 
 Effective level (trust): the configured `trust.<class>` from $STATE/config
-(default L0 for solo, L1 for the rest), minus one when a revert in the class
-is newer than `trust.<class>.since` (any revert when no since is set), floored
-at L0, capped at L1 for solo, and capped at L2 unless zstack-fleet is
-installed ($HOME/.agents/skills/zstack-fleet, $HOME/.claude/skills/zstack-fleet
-or ZSTACK_FLEET=1).
+(default L0 for solo, L1 for the rest), capped at L1 for solo and at L2
+unless zstack-fleet is installed ($HOME/.agents/skills/zstack-fleet,
+$HOME/.claude/skills/zstack-fleet or ZSTACK_FLEET=1), then minus one when a
+revert in the class is newer than `trust.<class>.since` (any revert when no
+since is set), floored at L0. The caps come first so a revert always costs a
+level.
 """
 import argparse
 import datetime as dt
@@ -59,7 +60,10 @@ def ledger_path():
 def now_iso():
     env = os.environ.get("ZSTACK_NOW")
     if env:
-        return env
+        t = parse_time(env)
+        if t is None:
+            raise Fail("ZSTACK_NOW is not an ISO time: %s" % env)
+        return t.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
@@ -103,8 +107,8 @@ def read_events(path):
 
 
 def append_events(path, events):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "a", encoding="utf-8") as fh:
             for ev in events:
                 fh.write(json.dumps(ev, sort_keys=True) + "\n")
@@ -197,18 +201,18 @@ def effective(row, conf, fleet):
     if configured not in LEVELS:
         raise Fail("config trust.%s=%s is not one of %s" % (c, configured, ", ".join(LEVELS)))
     level = LEVELS.index(configured)
+    # Caps first, so a revert always costs a level below what the class may hold.
+    if c == "solo":
+        level = min(level, 1)
+    if not fleet:
+        level = min(level, 2)
     if row["reverts"]:
         last = parse_time(row["last_revert"])
         since = parse_time(conf.get("trust.%s.since" % c, ""))
         # An undated revert counts as newer than any since date.
         if since is None or last is None or last > since:
             level -= 1
-    level = max(level, 0)
-    if c == "solo":
-        level = min(level, 1)
-    if not fleet:
-        level = min(level, 2)
-    return configured, LEVELS[level]
+    return configured, LEVELS[max(level, 0)]
 
 
 def cmd_add(a):
@@ -351,6 +355,10 @@ def main(argv=None):
         return 1
     except KeyboardInterrupt:
         return 130
+    except Exception as e:  # last guard: one readable line, never a traceback
+        print("%s: unexpected error: %s: %s" % (PROG, type(e).__name__, " ".join(str(e).split())),
+              file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

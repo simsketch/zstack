@@ -18,6 +18,8 @@ assert_eq docs "$(cls README.md)" "root markdown is docs"
 assert_eq solo "$(cls .github/workflows/ci.yml)" "workflow change is solo"
 assert_eq solo "$(cls infra/main.tf)" "terraform is solo"
 assert_eq solo "$(cls services/auth/login.py)" "auth path is solo"
+assert_eq solo "$(cls migrations/1.sql)" "root-level migrations is solo"
+assert_eq solo "$(cls auth/x.py)" "root-level auth is solo"
 
 CLAIM=docs
 assert_eq solo "$(cls db/migrations/1.sql)" "--claimed docs never lowers solo"
@@ -38,6 +40,8 @@ assert_eq small-ui "$(bash "$CLASSIFY" --files "$F" --conf "$C")" "custom conf r
 printf '%s\n' 'ui/** -> huge' > "$C"
 bash "$CLASSIFY" --files "$F" --conf "$C" >/dev/null 2>&1; RC=$?
 check_not "conf with an unknown class fails" [ "$RC" -eq 0 ]
+bash "$CLASSIFY" --files "$F" --conf "$SANDBOX/no-such.conf" >/dev/null 2>&1; RC=$?
+check_not "a missing --conf file fails" [ "$RC" -eq 0 ]
 
 # --init writes $STATE/classes.conf once, and it is then the default.
 OUT="$(bash "$CLASSIFY" --init 2>&1)"; RC=$?
@@ -68,8 +72,6 @@ rm "$SANDBOX/gh/exit"
 R="$SANDBOX/repo"; new_repo "$R"
 ( cd "$R" && git checkout -q -b work && mkdir -p db/migrations && echo x > db/migrations/2.sql \
   && git add . && git commit -q -m mig )
-bash "$CLASSIFY" --files "$F" --conf "$SANDBOX/no-such.conf" >/dev/null 2>&1; RC=$?
-check_not "a missing --conf file fails" [ "$RC" -eq 0 ]
 rm -f "$ZSTACK_STATE_DIR/classes.conf"
 assert_eq solo "$(cd "$R" && bash "$CLASSIFY" --base "$(git -C "$R" rev-list --max-parents=0 HEAD)" 2>&1)" "--base finds the migration"
 

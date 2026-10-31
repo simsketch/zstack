@@ -15,8 +15,8 @@
 # A recognized count below --min-tests (default 1) records exit=3 and exits 3
 # ("ran zero tests"). A failing command records and returns its own exit code.
 #
-# --verify exits 0 only when every named record exists with exit=0,
-# clean=yes and tests other than 0; else it prints one line per missing or
+# --verify exits 0 only when every named record exists, is complete, and has
+# exit=0, clean=yes and tests other than 0; else it prints one line per missing or
 # failed name and exits 1.
 #
 # State dir: $ZSTACK_STATE_DIR, else <git common dir>/zstack.
@@ -55,7 +55,9 @@ do_verify() {
       echo "missing: $n (no record at $sha)"; bad=1; continue
     fi
     e="$(field "$f" exit)"; t="$(field "$f" tests)"; c="$(field "$f" clean)"
-    if [ "$e" != 0 ]; then
+    if [ -z "$e" ] || [ -z "$t" ] || [ -z "$c" ]; then
+      echo "failed: $n (record is incomplete)"; bad=1
+    elif [ "$e" != 0 ]; then
       echo "failed: $n (exit=$e)"; bad=1
     elif [ "$c" != yes ]; then
       echo "failed: $n (clean=$c)"; bad=1

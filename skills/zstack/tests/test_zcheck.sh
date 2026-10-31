@@ -83,6 +83,19 @@ assert_contains "$OUT" "missing" "--verify names the missing check"
 assert_contains "$OUT" "broken" "--verify names the failed check"
 assert_not_contains "$OUT" "unit" "--verify does not name the good check"
 
+# A record missing a field does not verify.
+printf 'exit=0\nclean=yes\n' > "$ZSTACK_STATE_DIR/checks/$SHA/partial"
+OUT="$(bash "$ZCHECK" --verify "$SHA" partial 2>&1)"; RC=$?
+assert_eq 1 "$RC" "--verify fails an incomplete record"
+assert_contains "$OUT" "incomplete" "--verify says the record is incomplete"
+
+# A tree change during the run records clean=no and does not verify.
+bash "$ZCHECK" --name dirtier -- sh -c 'echo "1 passed"; echo x > during.txt' >/dev/null 2>&1
+assert_contains "$(rec dirtier)" "clean=no" "tree change during the run records clean=no"
+bash "$ZCHECK" --verify "$SHA" dirtier >/dev/null 2>&1; RC=$?
+assert_eq 1 "$RC" "--verify fails a clean=no record"
+rm -f during.txt
+
 # --list.
 OUT="$(bash "$ZCHECK" --list 2>&1)"
 assert_contains "$OUT" "unit" "--list shows records at HEAD"

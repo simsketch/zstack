@@ -37,10 +37,14 @@ loose = """Some summary.
 - **Expected result:** 201 with an order id
 """
 none = "Refactor only, nothing to click."
+empty = "## How to test\nEnvironment: staging\n\n## Follow-ups\nNone."
+outside = "## How To Test\n**Environment**: staging\n**Screen**: Billing\n**Steps**: open the invoice list\n**Expected**: invoices load"
 prs = [
     {"number": 1, "title": "Edit profile name", "body": well, "mergedAt": "2026-10-01T09:00:00Z", "url": "u1"},
     {"number": 2, "title": "Orders API", "body": loose, "mergedAt": "2026-10-01T10:00:00Z", "url": "u2"},
     {"number": 3, "title": "Tidy utils", "body": none, "mergedAt": "2026-10-01T11:00:00Z", "url": "u3"},
+    {"number": 4, "title": "Empty steps", "body": empty, "mergedAt": "2026-10-01T11:10:00Z", "url": "u4"},
+    {"number": 5, "title": "Fix regression from PR #40", "body": outside, "mergedAt": "2026-10-01T11:20:00Z", "url": "u5"},
 ]
 json.dump(prs, open(sys.argv[1], "w"))
 PY
@@ -56,11 +60,13 @@ assert_contains "$(cat "$SANDBOX/gh/calls.log")" "pr list" "generate lists PRs t
 assert_contains "$(cat "$SANDBOX/gh/calls.log")" "--state merged" "generate asks for merged PRs"
 assert_contains "$(cat "$SANDBOX/gh/calls.log")" "merged:>=2026-09-30" "generate searches from --since"
 BODY="$(cat "$FILE")"
-assert_eq 2 "$(grep -c '^- \[ \] PR #' "$FILE")" "two PR items"
+assert_eq 3 "$(grep -c '^- \[ \] PR #' "$FILE")" "three PR items"
 assert_contains "$BODY" "- [ ] PR #1 Edit profile name — Settings > Profile: 1. Open settings; 2. Change the display name -> expected The new name shows in the header  result:" "well-formed block item"
 assert_contains "$BODY" "PR #2 Orders API — POST /api/orders: send an order; read the response -> expected 201 with an order id  result:" "loose block item"
 assert_contains "$BODY" "## No test steps" "no test steps section"
 assert_contains "$(sed -n '/^## No test steps/,/^## /p' "$FILE")" "PR #3 Tidy utils" "PR without a block is listed under no test steps"
+assert_contains "$(sed -n '/^## No test steps/,/^## /p' "$FILE")" "PR #4 Empty steps" "a block without steps is listed under no test steps"
+assert_contains "$BODY" "PR #5 Fix regression from PR #40 — Billing: open the invoice list -> expected invoices load  result:" "colon outside bold labels parse"
 assert_contains "$BODY" "## Smoke" "smoke section"
 assert_contains "$(sed -n '/^## Smoke/,$p' "$FILE")" "- [ ] Sign in: open /login and sign in -> dashboard loads  result:" "smoke item carries a result field"
 assert_contains "$(sed -n '/^## staging/,/^## /p' "$FILE")" "PR #1" "PR #1 under staging"
@@ -88,7 +94,8 @@ check "--out directory used" [ -f "$SANDBOX/out/checklist-2026-10-01.md" ]
 # record.
 REC="$SANDBOX/filled.md"
 sed -e 's/^- \[ \] \(PR #1 .*\)result:$/- [x] \1result: pass name updated/' \
-    -e 's/^- \[ \] \(PR #2 .*\)result:$/- [x] \1result: fail returns 500/' "$FILE" > "$REC"
+    -e 's/^- \[ \] \(PR #2 .*\)result:$/- [x] \1result: fail returns 500/' \
+    -e 's/^- \[ \] \(PR #5 .*\)result:$/- [x] \1result: pass/' "$FILE" > "$REC"
 : > "$SANDBOX/gh/calls.log"
 OUT="$(python3 "$CHECKLIST" record "$REC" --dry-run 2>&1)"; RC=$?
 assert_eq 0 "$RC" "record --dry-run exits 0"
@@ -96,6 +103,8 @@ assert_contains "$OUT" "gh pr comment 1 --body" "dry run prints the pass comment
 assert_contains "$OUT" "gh pr comment 2 --body" "dry run prints the fail comment"
 assert_contains "$OUT" "open bug: PR #2" "a failure prints open bug"
 assert_eq "" "$(cat "$SANDBOX/gh/calls.log")" "dry run calls no gh"
+assert_contains "$OUT" "gh pr comment 5 --body" "dry run comments on the item's own PR"
+assert_not_contains "$OUT" "gh pr comment 40" "a PR number inside a title is not commented on"
 OUT="$(python3 "$CHECKLIST" record "$REC" 2>&1)"; RC=$?
 assert_eq 0 "$RC" "record exits 0"
 assert_contains "$(cat "$SANDBOX/gh/calls.log")" "pr comment 1 --body" "record comments on PR 1"
@@ -104,6 +113,8 @@ echo 1 > "$SANDBOX/gh/exit"
 OUT="$(python3 "$CHECKLIST" record "$REC" 2>&1)"; RC=$?
 assert_eq 1 "$RC" "record exits 1 when gh fails"
 assert_not_contains "$OUT" "Traceback" "record gh failure prints no traceback"
+assert_eq 1 "$(printf '%s\n' "$OUT" | wc -l | tr -d ' ')" "record gh failure prints one line"
+assert_contains "$OUT" "posted 0 comments" "record gh failure says how many were posted"
 
 # gh failing makes generate exit 1 with one line and no partial file.
 rm -f "$FILE"

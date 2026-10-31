@@ -24,7 +24,7 @@ jobs:
           pip install skills-ref
 
       - name: shellcheck
-        run: shellcheck scripts/*.sh install.sh hooks/*.sh tests/*.sh tests/stubs/gh
+        run: shellcheck -x scripts/*.sh install.sh hooks/*.sh tests/*.sh tests/stubs/gh skills/zstack/scripts/*.sh skills/zstack/tests/*.sh skills/zstack/tests/stubs/gh
 
       - name: Manifests and Agent Skills validation
         run: bash scripts/check-manifests.sh
