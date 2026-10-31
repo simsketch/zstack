@@ -2,7 +2,8 @@
 # Test stub for gh. Point ZSTACK_GH at this file and export SANDBOX.
 # Every call appends its arguments as one line to $SANDBOX/gh/calls.log.
 # Output: prints $SANDBOX/gh/<arg1>-<arg2>.json when it exists
-#   (gh pr list -> pr-list.json, gh issue list -> issue-list.json).
+#   (gh pr list -> pr-list.json, gh issue list -> issue-list.json), and
+#   $SANDBOX/gh/api.txt for any `gh api` call when that file exists.
 # Failure: when $SANDBOX/gh/exit holds a number, prints a one-line error on
 #   stderr and exits with that number.
 dir="${SANDBOX:?stub gh needs SANDBOX}/gh"
@@ -11,6 +12,9 @@ printf '%s\n' "$*" >> "$dir/calls.log"
 if [ -f "$dir/exit" ]; then
   echo "error connecting to api.github.com" >&2
   exit "$(cat "$dir/exit")"
+fi
+if [ "${1:-}" = api ] && [ -f "$dir/api.txt" ]; then
+  cat "$dir/api.txt"; exit 0
 fi
 key="${1:-}-${2:-}"
 if [ -f "$dir/$key.json" ]; then

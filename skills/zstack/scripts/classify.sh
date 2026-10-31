@@ -10,7 +10,9 @@
 # labels. --claimed can only raise the result, never lower it.
 #
 # Sources: --files <file> (one path per line, - for stdin), --base <ref>
-# (git diff <ref>...HEAD), --pr <n> (files and labels via gh). Default:
+# (git diff <ref>...HEAD), --pr <n> (files and labels via gh; when gh pr view
+# lists 100 or more files, the full list comes from the paginated pulls/<n>/files
+# API, and a failure there is an error rather than a partial answer). Default:
 # --base with `base=` from the state config, else main.
 #
 # Rules: --conf <path>, else $STATE/classes.conf, else the shipped template
@@ -123,6 +125,18 @@ case "$src" in
     mode=json
     if ! zs_gh pr view "$src_arg" --json files,labels > "$input" 2> "$work/err"; then
       zs_die "$PROG" "gh pr view $src_arg failed: $(head -n 1 "$work/err")"
+    fi
+    # gh pr view returns at most 100 files; past that, read every page.
+    n_files=$(python3 -I -c 'import json, sys
+try:
+    print(len((json.load(open(sys.argv[1])) or {}).get("files") or []))
+except Exception:
+    print(0)' "$input")
+    if [ "$n_files" -ge 100 ]; then
+      if ! zs_gh api --paginate "repos/{owner}/{repo}/pulls/$src_arg/files" --jq '.[].filename' \
+          > "$work/more" 2> "$work/err"; then
+        zs_die "$PROG" "PR $src_arg lists $n_files+ files and the full list could not be read: $(head -n 1 "$work/err")"
+      fi
     fi ;;
   *)
     base="$src_arg"
@@ -133,10 +147,10 @@ case "$src" in
       || zs_die "$PROG" "git diff against $base failed: $(head -n 1 "$work/err")" ;;
 esac
 
-python3 -I - "$conf" "$input" "$mode" "$claimed" <<'PY'
-import json, re, sys
+python3 -I - "$conf" "$input" "$mode" "$claimed" "$work/more" <<'PY'
+import json, os, re, sys
 
-conf_path, input_path, mode, claimed = sys.argv[1:5]
+conf_path, input_path, mode, claimed, more_path = sys.argv[1:6]
 ORDER = ["docs", "tests", "small-ui", "feature", "solo"]
 RANK = {c: i for i, c in enumerate(ORDER)}
 
@@ -200,6 +214,9 @@ if mode == "json":
         pr_labels = [l["name"] for l in data.get("labels") or []]
     except (ValueError, KeyError, TypeError, AttributeError):
         die("could not read gh pr view output")
+    if os.path.isfile(more_path):
+        more = open(more_path, encoding="utf-8", errors="replace").read().splitlines()
+        files += [l.strip() for l in more if l.strip()]
 else:
     files = [l.strip() for l in raw.splitlines() if l.strip()]
 

@@ -68,6 +68,15 @@ assert_not_contains "$OUT" "Traceback" "gh failure prints no traceback"
 assert_eq 1 "$(printf '%s\n' "$OUT" | wc -l | tr -d ' ')" "gh failure prints one line"
 rm "$SANDBOX/gh/exit"
 
+# A PR with 100 or more files: the paginated API supplies the files past the first 100.
+python3 -c 'import json; print(json.dumps({"files": [{"path": "docs/p%d.md" % i} for i in range(100)], "labels": []}))' \
+  > "$SANDBOX/gh/pr-view.json"
+assert_eq docs "$(bash "$CLASSIFY" --pr 8 2>&1)" "100 docs files with no extra pages stay docs"
+{ i=0; while [ "$i" -lt 100 ]; do echo "docs/p$i.md"; i=$((i + 1)); done; echo "db/migrations/0101.sql"; } > "$SANDBOX/gh/api.txt"
+assert_eq solo "$(bash "$CLASSIFY" --pr 8 2>&1)" "a migration past file 100 makes the PR solo"
+assert_contains "$(tail -1 "$SANDBOX/gh/calls.log")" "pulls/8/files" "the full list comes from the paginated files API"
+rm "$SANDBOX/gh/api.txt"
+
 # --base diffs against a ref.
 R="$SANDBOX/repo"; new_repo "$R"
 ( cd "$R" && git checkout -q -b work && mkdir -p db/migrations && echo x > db/migrations/2.sql \
