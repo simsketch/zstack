@@ -1,6 +1,6 @@
 # zStack
 
-zStack is an agent skill for day-to-day engineering work. You give it a goal. It picks a playbook (how
+zStack (spoken "Zee Stack") is an agent skill for day-to-day engineering work. You give it a goal. It picks a playbook (how
 to do the work) and an execution shape (how wide to run it), copies the playbook's steps into the agent's
 todo list, and makes the agent name the working principles behind each decision and what each one
 changed. The output is meant to be reviewable at volume: every PR carries an evidence packet you can
@@ -8,7 +8,7 @@ close from.
 
 One skills tree serves Claude Code, Codex, Cursor, Gemini CLI, OpenCode and Pi. It follows the
 [Agent Skills](https://agentskills.io) format and ships a routing hint for [AGENTS.md](https://agents.md).
-MIT licensed.
+MIT licensed. zStack is unrelated to the 500x `ship-stack` skill, which scaffolds a SaaS starter.
 
 ## How routing works
 
@@ -216,7 +216,7 @@ goes under `.git/zstack/`.
 |---|---|
 | `zcheck.sh` | record a check at the head commit (`--name <n> -- <cmd>`), `--verify <sha> <names>` before merge, `--list` |
 | `classify.sh` | compute a PR's class from its files (`--pr`, `--base`, `--files`); `--init` writes `classes.conf` |
-| `ledger.py` | record merges, reverts and bugs; `stats`, `export`, `import` |
+| `ledger.py` | `add` a merge, `flag` it reverted or as a bug's cause; `stats`, `export`, `import` |
 | `trust.sh` | per-class track record and effective trust level; `--gate <class>` before a merge |
 | `checklist.py` | `generate` the manual-test checklist and `record` results back to PRs |
 

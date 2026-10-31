@@ -58,8 +58,8 @@ with_timeout() {
   elif command -v gtimeout >/dev/null 2>&1; then
     gtimeout "$s" "$@"
   else
-    perl -e 'my $s = shift; $SIG{ALRM} = sub { kill "TERM", $pid; exit 124 };
-             $pid = fork(); if ($pid == 0) { exec @ARGV or exit 127 }
+    perl -e 'my $s = shift; $SIG{ALRM} = sub { kill "TERM", -$pid; exit 124 };
+             $pid = fork(); if ($pid == 0) { setpgrp(0, 0); exec @ARGV or exit 127 }
              alarm $s; waitpid($pid, 0); exit($? >> 8)' "$s" "$@"
   fi
 }

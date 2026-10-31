@@ -17,9 +17,10 @@ waiting in `manual-verify`.
    `--repo <owner/name>` when needed). It writes `.git/zstack/checklists/checklist-<YYYY-MM-DD>.md`.
 2. Open the file and read the `## No test steps` section. For each PR listed there, add a `## How to test`
    block to the PR body (from `<zstack dir>/templates/pr-body.md`), or ask its author to, and regenerate.
-3. Add tickets waiting in `manual-verify` by hand: list them from the tracker and append each as
-   `- [ ] <ticket> <title>: <steps> -> expected <x>  result:` under its environment. The script reads
-   PRs only, so write these tickets' results on the ticket yourself.
+3. Check the tickets waiting in `manual-verify`. The script already includes open GitHub issues with
+   that label and writes their results back as issue comments. For tickets in any other tracker, append
+   each by hand as `- [ ] <ticket> <title>: <steps> -> expected <x>  result:` under its environment,
+   and write their results on the ticket yourself.
 4. Give the human the checklist path and a one-line count: items per environment, plus the smoke list.
 5. While the human tests, keep other work on things that do not need them.
 6. Collect results. The human marks each item `[x]` and fills `result: pass` or `result: fail <note>`, or

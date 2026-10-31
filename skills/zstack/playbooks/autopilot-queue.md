@@ -23,8 +23,8 @@ queue across repos or accounts goes to a fleet wave instead.
    `<zstack dir>/templates/worker-brief.md`, naming the playbook that fits the ticket (`feature`, `debug`, `refactor`
    and so on) and the principles in force. Hot files (lockfiles, CI workflows, migration indexes, route
    registries) are leased to one worker at a time.
-5. Start at most three workers in any two minutes, and add more only while the machine stays
-   responsive. Tell every worker to read `.git/zstack/board.md` before it starts and to append a one-line
+5. Start at most three workers in any two minutes, wait for each batch to report before starting the
+   next, and add more only while the machine stays responsive. Tell every worker to read `.git/zstack/board.md` before it starts and to append a one-line
    `FAIL` entry (what was tried, why it failed, commit or log) whenever an approach fails, so the others
    skip that dead end.
 6. Count a worker as alive only when it produced output (a report, a commit or a file change) in the last

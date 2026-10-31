@@ -25,18 +25,18 @@ Route: pickup -> feature -> land, shape: inline, principles: count-the-living, o
 ## Todo list
 
 **pickup**
-1. Confirm the work is mine to take: no other live session on this branch or worktree. ⚠ **Blocked:** the WIP commit is about 30 seconds old. Is that other session finished?
-2. Read the state from disk: handoff, log, status, PR, decisions, zcheck list. ✅ Done (read-only).
-3. Compare the handoff with the disk and note differences. ✅ Done (list above).
-4. Read the zstack router and the principle leaves the handoff names. ✅ Done.
-5. Restate the plan before any edit. ✅ This reply.
+1. Confirm the work is mine to take: no other live session on this branch or worktree. [warning] **Blocked:** the WIP commit is about 30 seconds old. Is that other session finished?
+2. Read the state from disk: handoff, log, status, PR, decisions, zcheck list. [done] Done (read-only).
+3. Compare the handoff with the disk and note differences. [done] Done (list above).
+4. Read the zstack router and the principle leaves the handoff names. [done] Done.
+5. Restate the plan before any edit. [done] This reply.
 6. Settle questions the code can answer, citing the source. Put the rest to you with options. → The two questions below.
 7. Keep `wip:` `72b4867` as the base, and squash or reword it before landing.
 8. Continue the feature playbook from its first unfinished step.
 
 **feature** (picking up from step 2 of the handoff's own todo list)
-1. Restate the feature and its definition of done. ✅
-2. Name the data. ✅ Done by worker-2: search returns a list of note dicts in the same shape as `store.load()` (`acme_notes/store.py:11`).
+1. Restate the feature and its definition of done. [done]
+2. Name the data. [done] Done by worker-2: search returns a list of note dicts in the same shape as `store.load()` (`acme_notes/store.py:11`).
 3. Look for existing code to reuse. Use `store.load()` and the `cmd_list` print format (`acme_notes/cli.py:16`), with no new dependencies.
 4. Write the planned paths to a scratch file and run `classify.sh --files`: `acme_notes/search.py`, `acme_notes/cli.py`, `tests/test_search.py`. I expect `feature`, not solo.
 5. Write the tests first in `tests/test_search.py`: case-insensitive match, no match, CLI output.
@@ -46,7 +46,7 @@ Route: pickup -> feature -> land, shape: inline, principles: count-the-living, o
 9. Write the PR body from `templates/pr-body.md`, with a `## How to test` block.
 10. Hand over to `land`.
 
-**land**: commits in order, the evidence packet in the PR body, and the merge pinned to the verified head. Blocked until there's a remote; before any GitHub action I'll check the account per your CLAUDE.md.
+**land**: commits in order, the evidence packet in the PR body, and the merge pinned to the verified head. Blocked until there's a remote. [editor's note: a clause about the tester's personal config was removed here.]
 
 **Drive-bys found** (each gets its own `drive-by:` commit):
 - `cli.py:18`: `notes[: args.limit - 1]` is off by one (`--limit 5` shows 4). It qualifies once I add a test for it.

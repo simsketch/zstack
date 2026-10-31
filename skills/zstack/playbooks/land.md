@@ -35,7 +35,10 @@ with its evidence packet and, where the trust ladder allows, merges it pinned to
     `gh pr view <n> --json headRefOid,statusCheckRollup` shows the recorded sha and every required check
     passing), any `hold` label was removed by a human, and no other merge is running in this repo (only
     the coordinating session merges, one PR at a time):
-    `gh pr merge <n> --match-head-commit <sha>` with the repo's merge method flag.
+    `gh pr merge <n> --match-head-commit <sha>` with the repo's merge method flag. With zstack-fleet
+    installed (its folder is `~/.agents/skills/zstack-fleet` or `~/.claude/skills/zstack-fleet`), run
+    `<fleet dir>/scripts/release.sh is-frozen` right before the merge; exit 0 means a freeze is on, so
+    wait and report it instead of merging.
 11. Log the merge:
     `python3 <zstack dir>/scripts/ledger.py add --pr <n> --sha <merge sha> --class <class> --checks <a,b>`.
 12. Update the PR (or ticket) with the merge sha as Implemented. Deployed and Verified stay open until

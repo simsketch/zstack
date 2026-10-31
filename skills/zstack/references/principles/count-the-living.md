@@ -12,7 +12,8 @@ coordinator from waiting on a wave that will never finish.
 ## Checks
 
 - Worker counts in status reports use output written in the last 10 minutes, and say so.
-- A worker with no output for 30 minutes or more is stopped and its piece redone or reassigned.
+- A worker with no output for 30 minutes is nudged; at about 60 minutes it is stopped and its piece
+  redone or reassigned.
 - The coordinator checks liveness on its own schedule instead of waiting for a whole wave to report.
 - A worker silent for about 60 minutes loses its claims on tickets and hot files, and they are released
   for another worker.

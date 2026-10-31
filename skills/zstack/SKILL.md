@@ -42,7 +42,8 @@ Work through these seven steps in order, every time.
    the decision page, record a default and flag it `revisit`.
 2. **Pick a playbook** from the catalog below. Overrides come before narrow matches: work the human wants
    to walk away from, or that spans days, goes to `autopilot-queue` (or a fleet wave when zstack-fleet is
-   installed); "which approach is better?" goes to `prototype`. When nothing fits, write a one-off
+   installed); "which approach is better?" goes to `prototype`. When the human is also busy, human-busy
+   mode wraps the work and the work itself routes by these rules (a queue of tickets: `autopilot-queue`). When nothing fits, write a one-off
    playbook in the same shape as the shipped ones and save it under `.git/zstack/playbooks/<name>.md` so
    the next session can reuse it.
 3. **Pick an execution shape** from the signals in the next section.

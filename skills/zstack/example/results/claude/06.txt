@@ -1,83 +1,84 @@
 harness: claude
 prompt: I'm testing on my phone for the next two hours, keep going on the open work without blocking on me.
-exit: 0  seconds: 75
+exit: 0  seconds: 79
 skill tool calls: zstack
-zstack files read: SKILL.md, playbooks/human-busy.md, references/principles, playbooks/pickup.md, playbooks/feature.md, playbooks/land.md, references/principles/$p.md, templates/decision-page.md, playbooks/manual-test-checklist.md
+zstack files read: SKILL.md, playbooks/human-busy.md, references/principles, playbooks/pickup.md, references/principles/$p.md, playbooks/feature.md, playbooks/land.md
 ---
-I didn't edit anything. The plan exists only in this reply: I tried to save it to the plan file and the permission check blocked that write, so I stopped there.
+This is a dry run, so I haven't edited anything. I only read the repo and the skill files. The open work is **NOTES-12, `acme-notes search` on `wip/search`**. A handoff from worker-2 is at `.git/zstack/handoffs/wip/search.md`.
 
-**Route: human-busy -> pickup -> feature -> land, shape: inline (in sequence), principles: spend-attention-carefully, ask-with-options, smallest-reversible-change, data-shape-first, one-owner-per-file, count-the-living, evidence-before-the-word, name-what-changed**
+```
+Route: pickup -> feature -> land (inside human-busy), shape: inline, principles: spend-attention-carefully, ask-with-options, count-the-living, one-owner-per-file, data-shape-first, smallest-reversible-change, evidence-before-the-word, name-what-changed
+```
 
-**Human-busy mode is on** until about 2 hours from now. Your questions go on one page, `.git/zstack/decisions.md`, and work keeps moving on anything that doesn't need an answer.
+**Shape:** inline. It's one ticket in one area with a clear definition of done. `feature/tags` also edits `cli.py`, so the two branches run one after the other, not in parallel.
 
-**Open work:**
-- **`wip/search` (63d23ec, ticket NOTES-12):** adds `acme-notes search <query>`. The last agent left a handoff note; three of its five steps are still open.
-- **`feature/tags` (adf8b99):** adds `add --tag`. It has no handoff note, no tests and no PR.
-- **Why they run one after the other:** both branches change `acme_notes/cli.py`. Tags goes first because search will also need to match tags.
+**Handoff vs. what's on disk** (I trust the disk):
+- The handoff mentions a decision page, but `.git/zstack/decisions.md` doesn't exist. I'll create it.
+- There are no checks recorded and no worktrees. worker-2's last output was the handoff on Oct 28, so they're no longer working on it and the branch is free to take.
+- There's no git remote, so the land playbook can't open a PR. That goes on the decision page; it doesn't stop the build.
+- `feature/tags` (commit af094bb) has no handoff and no PR. I'm leaving it alone.
 
-**Where the handoff note and the repo disagree:**
-- The note says the "rank results by recency?" question was settled as "no" on the decision page, but there is no decision page.
-- There's no git remote, so I can't open PRs (the last step of each feature). I'll report that rather than work around it.
-- Notes saved before tags don't have a tags field, so search has to treat a missing field as no tags.
-- No test results have been recorded on any commit yet.
+## Todo list
 
-**Todo list**
+**human-busy**
+1. Say human-busy mode is on until about 2 hours from now.
+2. Create `decisions.md` and add two entries:
+   - Should results be ranked by recency? This is a product question, so it waits for you. Default: keep the store's order and leave the TODO in place.
+   - No remote, so no PR. Options: add a remote, or leave the branch ready locally. Recommendation: leave it ready locally.
+3. Sort the entries: protected ones wait for you; anything else proceeds on its recommendation, flagged `revisit`.
+4. Keep working on whatever doesn't depend on an open entry.
+5. Move hands-on testing to `manual-verify`.
+6. Send you one short message when the page changes.
+7. At each default time, apply the defaults for non-protected entries and flag them `revisit`.
+8. Apply your answers when they come in. *(waits for you)*
+9. Leave the mode once nothing is open.
 
-*human-busy*
-1. [ ] Say that human-busy mode is on, and until when.
-2. [ ] Move every open question to `.git/zstack/decisions.md`. There are two: recency ranking (option "no"), and whether search should match tags (option "yes, once tags lands").
-3. [ ] Sort each question as protected or not. Neither is: both have reversible defaults, so I go ahead with the recommended option and mark them `revisit`.
-4. [ ] Tell every lane to switch to work that needs no answer. There's one inline lane, and nothing is blocked.
-5. [ ] Move tickets that need hands-on testing to `manual-verify`. I'll do this once the CLI changes exist.
-6. [ ] Send you one short message when the decision page changes. No `notify_cmd` is set, so it goes in chat.
-7. [ ] At each default time, apply the default and mark it `revisit`.
-8. [ ] When you answer, apply each answer and reverse any default that contradicts it, each in its own commit.
-9. [ ] Leave the mode when no entries are `open` or you say you're back.
+**pickup**
+1. Confirm the branch is free: the owner has been quiet for more than 60 minutes. [done]
+2. Read the state from disk. [done]
+3. Note where the handoff and disk differ. [done] (listed above)
+4. Read the principles. [done]
+5. Restate the plan. [done] (this reply)
+6. Settle what the code and docs can answer. Tags stay out of search, per the NOTES-12 comment cited in the handoff.
+7. Keep commit e50bd31 (`wip:`) as the base and reword it at land time.
+8. Resume `feature` at its first unfinished step.
 
-*pickup (`feature/tags` first, then `wip/search`)*
-1. [ ] Confirm the work is mine to take. No session has touched either branch since the 2026-10-28 handoff.
-2. [ ] Read the state from disk: the handoff, `git log`, `git status`, the PR (none exists), decisions (missing), and recorded checks (none).
-3. [ ] Compare the handoff with the disk and treat the disk as the truth. Done above.
-4. [ ] Read the router and the principle files the handoff names. Done for `data-shape-first` and `smallest-reversible-change`.
-5. [ ] Restate the plan before any edit. That's this reply.
-6. [ ] Settle open questions from the code and docs where possible; the rest go on the decision page.
-7. [ ] Keep the `wip:` commit as the base, and squash or reword it at land.
-8. [ ] Continue with `feature` from the first unfinished step.
+**feature** (steps 1–3 are mostly done)
+1. Restate done: search ignores case, has unittest coverage, PR open. [done]
+2. Name the data: search returns a list of note dicts, the same shape `store.load()` returns, and it only reads. [done]
+3. Reuse what exists: `store.load` plus the `cli.py` subparser pattern. [done]
+4. Run `classify.sh --files` on `search.py`, `cli.py` and `tests/test_search.py`. I expect the class to come out as `feature`.
+5. Write the tests first in `tests/test_search.py`, including "Milk" matching "milk". It should fail first because of the case-sensitive match in `search.py`.
+6. Fix the match by lowering the note text, then add the `search` subcommand to `cli.py`, as separate commits.
+7. Add a concurrency test. *Skipped: the search only reads.*
+8. Run `zcheck.sh --name unittest -- python3 -m unittest discover -s tests` on a clean tree at the head commit.
+9. Write the PR body with a `## How to test` section.
+10. Hand off to land.
 
-*feature*
-1. [ ] Restate the feature and its definition of done.
-2. [ ] Name the data. A note is `{id, text, created, tags: list[str]}`, owned by `store.py`. Search returns a list of notes in the same shape that `store.load()` returns.
-3. [ ] Look for code to reuse or remove first. Reuse `store.load` and drop the TODO comments in `search.py`.
-4. [ ] Classify the planned files with `classify.sh`. I expect `feature`.
-5. [ ] Write tests first: `tests/test_store.py` for tags, and a new `tests/test_search.py` that includes a test proving "Milk" matches "milk".
-6. [ ] Implement in small commits that can each be reverted: lowercase the note text and tags in `search()`, add the `search` command to `cli.py`, and update the README usage. Fix the README typo "comand" in a separate `drive-by:` commit.
-7. [ ] Concurrency test. Skipped: there's no shared state like money or permissions.
-8. [ ] Record `python3 -m unittest discover -s tests` with `zcheck.sh` at each head commit.
-9. [ ] Write the PR body from the template, including how to test.
-10. [ ] Hand over to `land`.
+**land**
+1. Shape the commits.
+2. Check for a clean tree and note the head commit.
+3. Record the checks.
+4. Run `classify.sh --base main`.
+5. Write the PR body.
+6. Open the PR. *Blocked: no remote; this is on the decision page.*
+7–10. Check the head commit is unchanged, verify the checks, check the trust gate, merge. *Blocked behind step 6.*
+11. Log the merge in the ledger. *(blocked)*
+12. Mark it implemented. *(blocked)*
 
-*land*
-1. [ ] Shape the commits.
-2. [ ] Confirm the tree is clean and write down the head commit.
-3. [ ] Record the checks at that commit.
-4. [ ] Compute the class with `classify.sh`.
-5. [ ] Write the PR body.
-6. [ ] Open the PR. This is blocked because there's no git remote; I'll report that and stop.
-7. [ ] Confirm the head hasn't moved. Blocked by step 6.
-8. [ ] Verify the recorded checks. Blocked by step 6.
-9. [ ] Check whether I'm allowed to merge on my own. Blocked by step 6.
-10. [ ] Merge. Blocked by step 6.
-11. [ ] Log the merge. Blocked by step 6.
-12. [ ] Mark it Implemented. Blocked by step 6.
+**Small unrelated fixes (each in its own `drive-by:` commit)**
+- `cli.py`: `notes[: args.limit - 1]` is off by one, so `list --limit 5` shows 4 notes. I'll add a test with the fix.
+- `README.md`: "comand" is misspelled.
 
-**How each principle shapes this:**
-- **spend-attention-carefully:** both questions go on one page with defaults, and you get one message.
-- **ask-with-options:** neither question is on the protected list, so both go ahead marked `revisit`.
-- **smallest-reversible-change:** one change per commit, with the typo fix in its own commit.
-- **data-shape-first:** settles the tags field before search is written, which is how I caught the missing field on old notes.
-- **one-owner-per-file:** the shared `cli.py` keeps the two branches running one after the other.
-- **count-the-living:** the last handoff is two days old, so I can take the work.
-- **evidence-before-the-word:** nothing gets called "passing" until test results are recorded at that commit.
-- **name-what-changed:** this list.
+## How the principles shape this
 
-**Blocked:** without a git remote, both features stop at "ready to land" and nothing gets merged. If you want PRs, add a remote and tell me which GitHub account to use.
+- **spend-attention-carefully:** both questions go on one page, and the build doesn't wait for them.
+- **ask-with-options:** recency ranking waits for you because it's product behavior.
+- **count-the-living:** worker-2 counts as gone because their last output is two days old.
+- **one-owner-per-file:** `wip/search` and `feature/tags` both touch `cli.py`, so they run one after the other.
+- **data-shape-first:** the result shape is fixed before any CLI code.
+- **smallest-reversible-change:** the fix, the CLI wiring and each small fix get their own commits.
+- **evidence-before-the-word:** nothing gets called "passing" until the check is recorded at the head commit.
+- **name-what-changed:** the final reply and the PR body will repeat these lines.
+
+The plan-mode instructions said to save a plan file under `~/.claude/plans/`, but that folder doesn't exist and I didn't create it, so this reply is the plan. I'll start at human-busy step 1 when you give the go-ahead.
