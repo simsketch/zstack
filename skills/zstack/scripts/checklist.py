@@ -19,13 +19,17 @@ in place of calling gh.
 record reads a filled-in checklist. For each item marked [x] with
 `result: pass|fail <note>`, it comments on the PR (gh pr comment <n> --body)
 or issue, and prints `open bug: ...` for each failure. --dry-run prints the
-gh commands instead of running them.
+gh commands instead of running them. Each posted comment is noted in
+<file>.posted (one sha256 of target and body per line), so a rerun after a
+partial failure skips what already went out and posts only the rest; a changed
+result or note is a new comment.
 
 Exit 1 with one line when gh fails or is missing. ZSTACK_GH overrides gh,
 ZSTACK_STATE_DIR the state dir, ZSTACK_NOW the current time (ISO, for tests).
 """
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -425,6 +429,14 @@ def cmd_record(a):
         raise Fail("cannot read %s: %s" % (a.file, e.strerror))
     name = os.path.basename(a.file)
     repo = ["--repo", a.repo] if a.repo else []
+    sidecar = a.file + ".posted"
+    try:
+        sent = set(l.strip() for l in open(sidecar, encoding="utf-8") if l.strip())
+    except FileNotFoundError:
+        sent = set()
+    except OSError as e:
+        raise Fail("cannot read %s: %s" % (sidecar, e.strerror))
+    skipped = 0
     section, sub = "", ""
     done = passed = failed = posted = 0
     for line in lines:
@@ -451,13 +463,25 @@ def cmd_record(a):
             body += "\n\nNote: %s" % note
         for kind, num in refs:
             args = ["pr" if kind == "PR" else "issue", "comment", num, "--body", body] + repo
+            mark = hashlib.sha256(("%s|%s|%s|%s" % (a.repo or "", kind, num, body)).encode("utf-8")).hexdigest()
+            if mark in sent:
+                skipped += 1
+                print("already posted %s on %s #%s; skipped" % (result, kind, num))
+                continue
             if a.dry_run:
                 print("gh " + " ".join(shlex.quote(x) for x in args))
             else:
                 try:
                     gh(args)
                 except Fail as e:
-                    raise Fail("%s (posted %d comments before this; rerun only the rest)" % (e, posted))
+                    raise Fail("%s (posted %d comments before this; rerun to post the rest, posted ones are skipped)"
+                               % (e, posted))
+                try:
+                    with open(sidecar, "a", encoding="utf-8") as fh:
+                        fh.write(mark + "\n")
+                except OSError as e:
+                    raise Fail("posted on %s #%s but cannot write %s: %s" % (kind, num, sidecar, e.strerror))
+                sent.add(mark)
                 posted += 1
                 print("posted %s on %s #%s" % (result, kind, num))
         if result == "fail":
@@ -468,7 +492,8 @@ def cmd_record(a):
         else:
             passed += 1
         done += 1
-    print("%s %d results (%d pass, %d fail)" % ("would record" if a.dry_run else "recorded", done, passed, failed))
+    print("%s %d results (%d pass, %d fail)%s" % ("would record" if a.dry_run else "recorded", done, passed, failed,
+                                                 "; %d comments already posted" % skipped if skipped else ""))
     return 0
 
 

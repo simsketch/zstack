@@ -109,8 +109,18 @@ OUT="$(python3 "$CHECKLIST" record "$REC" 2>&1)"; RC=$?
 assert_eq 0 "$RC" "record exits 0"
 assert_contains "$(cat "$SANDBOX/gh/calls.log")" "pr comment 1 --body" "record comments on PR 1"
 assert_contains "$(cat "$SANDBOX/gh/calls.log")" "pr comment 2 --body" "record comments on PR 2"
-echo 1 > "$SANDBOX/gh/exit"
+check "record notes posted comments in a sidecar" [ -s "$REC.posted" ]
+: > "$SANDBOX/gh/calls.log"
 OUT="$(python3 "$CHECKLIST" record "$REC" 2>&1)"; RC=$?
+assert_eq 0 "$RC" "a rerun exits 0"
+assert_eq "" "$(cat "$SANDBOX/gh/calls.log")" "a rerun posts nothing already posted"
+assert_contains "$OUT" "already posted" "a rerun says what it skipped"
+sed -i.bak 's/result: pass name updated/result: fail name missing/' "$REC"
+OUT="$(python3 "$CHECKLIST" record "$REC" 2>&1)"; RC=$?
+assert_eq 1 "$(grep -c 'pr comment' "$SANDBOX/gh/calls.log")" "a changed result posts only that comment"
+REC2="$SANDBOX/filled2.md"; cp "$REC" "$REC2"
+echo 1 > "$SANDBOX/gh/exit"
+OUT="$(python3 "$CHECKLIST" record "$REC2" 2>&1)"; RC=$?
 assert_eq 1 "$RC" "record exits 1 when gh fails"
 assert_not_contains "$OUT" "Traceback" "record gh failure prints no traceback"
 assert_eq 1 "$(printf '%s\n' "$OUT" | wc -l | tr -d ' ')" "record gh failure prints one line"

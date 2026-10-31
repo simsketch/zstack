@@ -28,6 +28,7 @@ waiting in `manual-verify`.
 7. Preview the write-back: `python3 <zstack dir>/scripts/checklist.py record <file> --dry-run` and check the comments it
    would post.
 8. Write results back: `python3 <zstack dir>/scripts/checklist.py record <file>`. Each result becomes a PR comment.
+   After a partial failure, run the same command again: comments noted in `<file>.posted` are skipped.
 9. For each `open bug:` line it prints, open a bug ticket with the PR, the steps and the note, and start
    `bug-class-sweep` (or `debug` when the cause is unknown).
 10. For each item under `## Candidate journey tests`, open a ticket to automate that journey.
