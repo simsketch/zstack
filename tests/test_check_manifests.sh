@@ -45,7 +45,19 @@ assert_contains "$OUT" "skip: playbook" "no playbooks dir is reported as skipped
 mkdir -p "$d/skills/zstack/playbooks"
 printf '# debug\n' > "$d/skills/zstack/playbooks/debug.md"
 printf '# land\n' > "$d/skills/zstack/playbooks/land.md"
-cat >> "$d/skills/zstack/SKILL.md" <<'MD'
+# A self-contained SKILL.md whose catalog lists exactly the two fixture
+# playbooks, so the test does not depend on the real 16-playbook catalog.
+ver="$(sed -n 's/^  version: "\(.*\)"$/\1/p' "$ZT_ROOT/skills/zstack/SKILL.md")"
+cat > "$d/skills/zstack/SKILL.md" <<'MD'
+---
+name: zstack
+description: Fixture router used by the playbook catalog test.
+license: MIT
+metadata:
+  version: "@VER@"
+---
+
+# zStack fixture
 
 ## Playbook catalog
 
@@ -58,6 +70,7 @@ cat >> "$d/skills/zstack/SKILL.md" <<'MD'
 
 - `reproduce-first`: see it fail before fixing it
 MD
+sed "s/@VER@/$ver/" "$d/skills/zstack/SKILL.md" > "$d/x" && mv "$d/x" "$d/skills/zstack/SKILL.md"
 OUT="$(bash "$CHECK" "$d" 2>&1)"; RC=$?
 assert_eq 0 "$RC" "catalog matching playbooks passes"
 
