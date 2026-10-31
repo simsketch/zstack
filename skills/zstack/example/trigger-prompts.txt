@@ -1,0 +1,10 @@
+zstack: users report the CSV export drops the last row
+The CSV export is dropping rows for some users and I don't know why. Fix it.
+zstack: review the diff on branch feature/tags
+Add a tags field to notes: stored, exported in the CSV, and filterable from the CLI.
+What should I test today? Make me the manual-test checklist for what merged.
+I'm testing on my phone for the next two hours, keep going on the open work without blocking on me.
+Is the CSV export fix live in production yet?
+zstack: these three tickets are independent, run them in parallel: add --version flag, fix README typo, add a json export format
+Take over the half-finished work on branch wip/search that another agent left and finish it.
+The notes list command is slow on big files, make it faster.

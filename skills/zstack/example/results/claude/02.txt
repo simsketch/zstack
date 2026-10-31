@@ -1,0 +1,45 @@
+harness: claude
+prompt: The CSV export is dropping rows for some users and I don't know why. Fix it.
+exit: 0  seconds: 50
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/debug.md, playbooks/bug-class-sweep.md, references/principles
+---
+Here's the dry run. I haven't edited anything. Plan mode also blocked writing the plan file, so the plan is below instead.
+
+**Route: debug -> bug-class-sweep -> land, shape: inline, principles: reproduce-first, fix-the-class, smallest-reversible-change, empty-check-fails, evidence-before-the-word**
+
+The shape is inline because the bug is in one small file and a unit test can reproduce it. A subagent would cost more than it saves.
+
+**Likely cause (not yet reproduced):** the loop at `acme_notes/export.py:10` is `for i in range(len(notes) - 1):`, so the last note is never written. A user with one note gets only the header row. The one existing test, `tests/test_export.py`, only checks an empty list, so it never hits this. I won't call it the cause until a failing test shows it (reproduce-first).
+
+### Todo
+
+**debug** (steps copied word for word, with the planned action for this bug in parentheses)
+1. Write the symptom as one line: observed, expected, where. (The CSV is missing a row for every user, and users with one note get a header only.)
+2. Reproduce it. Prefer a failing automated test. (Add tests to `tests/test_export.py`: exporting 1 note should give 1 data row, and 3 notes should give 3.)
+3. Shrink the reproduction until every remaining step is needed to trigger it.
+4. List at least two candidate causes and the observation that would tell them apart. (The loop is off by one, or `store.load`/`save` loses notes or fields. Telling them apart: call `to_csv` directly on a list built in memory versus on what `store.load` returns.)
+5. Run those observations until one cause is left standing. Record the evidence that ruled out each other candidate.
+6. Name the root cause in one sentence that explains every observed symptom.
+7. Make sure the reproduction is captured as a test that fails on the current code.
+8. Make the smallest change that fixes the root cause, in its own commit. (`for note in notes:`)
+9. Record the checks at the fix commit on a clean tree with `zcheck.sh` (the new test plus `python -m unittest`). A check that ran zero tests failed.
+10. Confirm the original symptom is gone the way it was first seen. (Run a real export through the CLI against a temporary `ACME_NOTES_FILE`.)
+11. Chain into `bug-class-sweep` with the root cause as its input.
+
+**bug-class-sweep**
+1. Accept the root cause from the finished `debug`.
+2. Decide whether a class exists. (The class here is a loop over the list that stops one item early.)
+3. Name the class in one line.
+4. Write the class as a searchable pattern: `git grep -nE 'range\(len\(.*\) *- *1\)|\[:-1\]'`. A read-only run before planning found one hit, `export.py:10`.
+5. Run the pattern across every app and package in the repo, plus `sweep_repos=` if it's set.
+6. Classify every hit as confirmed, suspect or safe, with `path:line` and a reason.
+7. Fix the confirmed hits, or ticket them.
+8. Write the "why tests and QA missed it" note. (Only the empty-list case was tested.)
+9. Add a guardrail in its own commit: a test that the number of exported rows equals the number of notes. Show it fails on the unfixed code and passes on the fixed code.
+10. Write the sweep report to `.git/zstack/sweeps/2026-10-30-<slug>.md`.
+11. Link the bug, the fix, the guardrail and any tickets in the PR body.
+
+**land:** small ordered commits, the evidence in the PR body, and the merge pinned to the verified head commit. I'll read that playbook when I get to it. I'll only use the word "fixed" once the reproduction passes at a named commit.
+
+Stopping here. Tell me to go ahead and I'll start with the failing test.

@@ -1,0 +1,51 @@
+harness: claude
+prompt: zstack: these three tickets are independent, run them in parallel: add --version flag, fix README typo, add a json export format
+exit: 0  seconds: 80
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/autopilot-queue.md, references/principles, references/harness-capabilities.md, references/principles/{one-owner-per-file, references/principles/{rebase-once-late, references/principles/leave-it-better-separately.md
+---
+I ran the read-only checks and stopped before editing anything. One deviation: plan mode asked for a plan file, but the Write tool is disabled in this session, so the plan is below and no file was saved.
+
+**Route:** `autopilot-queue -> feature (x2) + land, shape: lane (2 lanes, capped from 3), principles: one-owner-per-file, smallest-reversible-change, data-shape-first, subtract-first, rebase-once-late, evidence-before-the-word, leave-it-better-separately, name-what-changed`
+
+**Why 2 lanes and not 3:** two of the "independent" tickets edit the same file.
+- `--version` changes the parser in `acme_notes/cli.py` and can use the existing `__version__ = "0.3.0"` in `acme_notes/__init__.py`.
+- JSON export changes `acme_notes/export.py`, the `export` command in `cli.py`, and the README usage block.
+- So **Lane A** does `--version` first, then JSON, with separate commits. **Lane B** is just the typo at `README.md:3` ("comand-line" → "command-line").
+- `cli.py` is also changed by the unmerged `feature/tags` branch and is next on the paused `wip/search` work (NOTES-12). Whichever merges first will make the others rebase.
+
+**Things that limit the run:**
+- This session has no subagent tool, so the lanes would run as headless `claude -p` jobs, each in its own worktree. A Workflow is the other option if you approve it.
+- Every change type is at trust level L1, so I can open PRs but not merge them. They'll wait for you.
+
+**Todo list** (the playbook's steps, word for word):
+1. Print the trust table and note, per class, whether zStack may merge or only open PRs. **Done:** L1 everywhere, so open PRs only.
+2. Confirm nobody owns each ticket (open PRs, remote branches, local worktrees). **Done locally:** no hits. There's no git remote, so I couldn't check for open PRs.
+3. Predict files, classify them, and group overlapping tickets into one lane. **Done:** all are ordinary feature changes with no high-risk files; lanes as above.
+4. Give each ticket one owner: a worker in its own worktree with the standard brief. Lane A runs the `feature` playbook and owns `cli.py`. Lane B is a trivial edit.
+5. Start at most 3 workers in any 2 minutes. Workers read `.git/zstack/board.md` and log failed approaches there.
+6. Nudge a worker after 30 minutes of silence and stop it by its process id at 60.
+7. Questions go to `.git/zstack/decisions.md`. **Open question:** what the JSON should look like. My default, which you can change: `export --format json out.json` writes a list of notes in the same shape the app already stores them, indented by 2.
+8. A second agent reviews each PR at its latest commit.
+9. Land each PR one at a time, oldest first. At L1 the merge waits for you.
+10. After each merge, rebase any PR that fell behind, once.
+11. Schedule a wake-up between rounds instead of polling.
+12. Write a summary: merged, open and waiting, blocked, and follow-ups.
+
+**Bugs I noticed (not part of these tickets):**
+- `acme_notes/export.py:10` uses `range(len(notes) - 1)`, so the CSV export drops the last note. It's small enough to fix in Lane A as a separate `drive-by:` commit with a test.
+- `acme_notes/cli.py:16` uses `notes[: args.limit - 1]`, so `list --limit N` shows one note too few.
+
+**How it would be checked:** run `python3 -m unittest discover -s tests` and record the result with `zcheck.sh` at each PR's latest commit, then run `python3 -m acme_notes --version` and round-trip a JSON export through `json.load`.
+
+**How each principle shaped the plan:**
+- one-owner-per-file: the shared `cli.py` turned three lanes into two, with Lane A owning it.
+- smallest-reversible-change: Lane A keeps `--version` and JSON in separate commits so either can be reverted alone.
+- data-shape-first: the JSON format is settled before any code.
+- subtract-first: `--version` uses the existing `__version__`, and JSON uses the existing stored note shape.
+- rebase-once-late: rebases happen once, at merge time, oldest PR first.
+- evidence-before-the-word: nothing is called passing until a check is recorded at the PR's latest commit.
+- leave-it-better-separately: the CSV bug becomes its own `drive-by:` commit and the `--limit` bug a follow-up.
+- name-what-changed: this list.
+
+Say go to start, and tell me whether you want a different JSON format.

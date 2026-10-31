@@ -1,0 +1,31 @@
+harness: codex
+prompt: Add a tags field to notes: stored, exported in the CSV, and filterable from the CLI.
+exit: 0  seconds: 27
+zstack files read: SKILL.md, playbooks/feature.md, references/harness-capabilities.md, references/principles/data-shape-first.md, references/principles/subtract-first.md, references/principles/smallest-reversible-change.md
+---
+Route: feature, shape: inline, principles: data-shape-first, subtract-first, smallest-reversible-change
+
+Done means notes persist tags, CSV includes tags, and the CLI filters notes by tag.
+
+Proposed contract: `tags` is a list of strings owned by `store.py`; older notes default to `[]`. Repeated `add --tag TAG` sets tags; `list --tag TAG` matches an exact tag before applying the limit. CSV encodes the tags cell as a JSON array.
+
+Todo list, following the feature playbook verbatim:
+
+1. Restate the feature and its definition of done in one or two lines. If done is unclear, ask the user one question with options before writing code.
+2. Name the data first: which records or fields are created, read, changed or deleted, which module owns each, and where it is stored. Write this as a short list in the PR description draft.
+3. Look for what already exists: a helper, component, endpoint or flag that does most of this. Reuse or extend it before adding a new one, and remove anything the feature makes dead.
+4. Write the planned file paths one per line to a scratch file and run `<zstack dir>/scripts/classify.sh --files <that file>`. If the result is `solo`, the PR opens with the `hold` label and runs as its own piece of work.
+5. Write the tests first where the repo has tests: one per behavior in the definition of done, failing for the right reason.
+6. Implement in small ordered commits, each one leaving the build green and revertable on its own.
+7. For any change that checks a value and then writes money, permissions or other contested state, add a concurrency test and fence the check and the write with the same lock, constraint or version check.
+8. Record the checks at the head commit on a clean tree: `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>` for tests, and `<zstack dir>/scripts/zcheck.sh --name lint --no-count -- <lint command>` for checks without a test count.
+9. Write the PR body from `<zstack dir>/templates/pr-body.md`, including a `## How to test` block a human can follow without reading the code.
+10. Hand over to `land`.
+
+Steps 1–3 are inspected/proposed; steps 4–6 and 8–10 are deferred for this dry run. Step 7 is skipped because no contested state is involved. Your dry-run instruction overrides the playbook’s file-writing and landing steps.
+
+Implementation would extend `store.py`, `export.py`, and `cli.py`, update README examples, and add storage, CSV, and CLI tests. CSV currently omits the last note; its correction is necessary to export tags reliably. Filtering tests should also cover the existing limit boundary.
+
+Principles applied: **data-shape-first** establishes storage and compatibility; **subtract-first** reuses existing functions and argparse; **smallest-reversible-change** keeps scope to the tags feature and required correctness fixes.
+
+No files edited. No tests run.

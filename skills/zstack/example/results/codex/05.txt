@@ -1,0 +1,29 @@
+harness: codex
+prompt: What should I test today? Make me the manual-test checklist for what merged.
+exit: 0  seconds: 23
+zstack files read: SKILL.md, playbooks/manual-test-checklist.md, references/harness-capabilities.md, references/principles/name-what-changed.md, references/principles/spend-attention-carefully.md, references/principles/three-words.md, references/principles/fix-the-class.md, references/principles/evidence-before-the-word.md
+---
+Route: manual-test-checklist, shape: inline, principles: spend-attention-carefully, three-words, fix-the-class, evidence-before-the-word
+
+Goal: produce an ordered manual-test checklist for merged changes, grouped by environment, including smoke tests. Dry run stops here; no files edited or PRs changed.
+
+Todo list below is copied from the playbook; all steps remain pending:
+
+1. Generate the checklist: `python3 <zstack dir>/scripts/checklist.py generate` (add `--since <ISO time>` or `--repo <owner/name>` when needed). It writes `.git/zstack/checklists/checklist-<YYYY-MM-DD>.md`.
+2. Open the file and read the `## No test steps` section. For each PR listed there, add a `## How to test` block to the PR body (from `<zstack dir>/templates/pr-body.md`), or ask its author to, and regenerate.
+3. Add tickets waiting in `manual-verify` by hand: list them from the tracker and append each as `- [ ] <ticket> <title>: <steps> -> expected <x>  result:` under its environment. The script reads PRs only, so write these tickets' results on the ticket yourself.
+4. Give the human the checklist path and a one-line count: items per environment, plus the smoke list.
+5. While the human tests, keep other work on things that do not need them.
+6. Collect results. The human marks each item `[x]` and fills `result: pass` or `result: fail <note>`, or dictates notes that you write into the file the same way.
+7. Preview the write-back: `python3 <zstack dir>/scripts/checklist.py record <file> --dry-run` and check the comments it would post.
+8. Write results back: `python3 <zstack dir>/scripts/checklist.py record <file>`. Each result becomes a PR comment.
+9. For each `open bug:` line it prints, open a bug ticket with the PR, the steps and the note, and start `bug-class-sweep` (or `debug` when the cause is unknown).
+10. For each item under `## Candidate journey tests`, open a ticket to automate that journey.
+11. Report: passed, failed (with ticket links), untested, and new candidate journey tests.
+
+Principles shaping the plan:
+
+- `spend-attention-carefully`: group testing into one ordered list.
+- `three-words`: report implemented, deployed, and verified separately.
+- `fix-the-class`: route failures into investigation and a sweep for related bugs.
+- `evidence-before-the-word`: record results only from actual testing.

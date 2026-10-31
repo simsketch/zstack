@@ -1,9 +1,38 @@
 zStack
 Copyright (c) 2026 Elon Zito. Licensed under the MIT License (see LICENSE).
 
-Credits (inspired by; no text copied unless listed below with its notice):
-- pstack by Lauren Tan, MIT.
-- michael-denyer/pstack-claude, MIT.
+zStack is inspired by the projects below. No text or code from these projects is included in zStack.
 
-This file is a stub. The full credits and any third-party notices are added
-before the first public release.
+pstack
+  License: MIT (the pstack/LICENSE file in the pstack folder; the parent repo has no root license)
+  Copyright: (c) 2026 Lauren Tan
+  URL: https://github.com/cursor/plugins/tree/main/pstack
+  Inspired: the router with an inline principle index; the playbook catalog; copying a playbook's
+  steps into the todo list with skipped steps explained; naming the principle behind a decision and
+  what it changed.
+
+Agensh, "A Decentralized, Scalable Multiagent Harness"
+  License: MIT
+  Copyright: (c) Microsoft Corporation
+  URL: https://github.com/microsoft/Agensh
+  Inspired: agents that claim sub-tasks, share findings and verify before merging. In zStack this
+  became the shared FAIL board (.git/zstack/board.md), claims on tickets and hot files that expire
+  after about 60 minutes without output, and starting lane workers a few at a time.
+
+David Ondrej's skills
+  License: MIT
+  Copyright: David Ondrej
+  URL: https://github.com/davidondrej/skills
+  Inspired: zStack is inspired in part by David Ondrej's agent-orchestration work
+  (github.com/davidondrej/skills, MIT).
+
+pstack-claude
+  License: MIT
+  Copyright: Michael Denyer
+  URL: https://github.com/michael-denyer/pstack-claude
+  Inspired: one skills tree with thin per-harness manifests; a session-start routing hook; a
+  per-harness tool mapping.
+
+Standards referenced (no content copied)
+  Agent Skills: https://agentskills.io
+  AGENTS.md: https://agents.md

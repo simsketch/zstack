@@ -1,0 +1,64 @@
+harness: claude
+prompt: Take over the half-finished work on branch wip/search that another agent left and finish it.
+exit: 0  seconds: 72
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/pickup.md, references/principles, playbooks/feature.md, references/principles/$p.md
+---
+This was a dry run, so I haven't edited anything in the repo. The plan file wasn't saved either, because `~/.claude/plans/` doesn't exist and I didn't create it. Below are the route and the todo list for picking up `wip/search` (ticket NOTES-12). Two things need your answer before any edits: whether another session is still on this branch, and where the PR should go.
+
+```
+Route: pickup -> feature -> land, shape: inline, principles: count-the-living, one-owner-per-file, evidence-before-the-word, ask-with-options, data-shape-first, smallest-reversible-change
+```
+
+**Goal:** add `acme-notes search <query>`, which prints matching notes and ignores case. It's done when it has unittest coverage, the checks are recorded at the head commit, and a PR is open (definition from the handoff file at `.git/zstack/handoffs/wip/search.md`).
+
+**Shape:** inline. It's one small area with a clear finish line, and the pickup playbook prefers inline so you can see the plan.
+
+## Handoff file vs. what's actually in the repo (the repo wins)
+- **Timestamps don't match.** The handoff says it was written by worker-2 on 2026-10-28, but the WIP commit `72b4867` was made about 30 seconds before I looked (2026-10-30 22:12 EDT). Under count-the-living, a session that produced output in the last 10 minutes counts as still working. Two Claude processes mention `acme-notes`, and one may be another session.
+- **The decision page is missing.** The handoff says "rank by recency? (on the decision page: no)", but `.git/zstack/decisions.md` doesn't exist. I'll follow the "no" from the handoff and note that it has no source.
+- **The trap is real.** `acme_notes/search.py:8` lowercases the query but not `n["text"]`, so "Milk" doesn't match "milk".
+- **The tags branch exists but isn't merged.** `feature/tags` (`8a2bde1`) exists locally but isn't on `main`, so "tags wait" still holds.
+- **There's no git remote**, so a PR can't be opened from here.
+- **No checks are recorded** at any commit yet.
+
+## Todo list
+
+**pickup**
+1. Confirm the work is mine to take: no other live session on this branch or worktree. ⚠ **Blocked:** the WIP commit is about 30 seconds old. Is that other session finished?
+2. Read the state from disk: handoff, log, status, PR, decisions, zcheck list. ✅ Done (read-only).
+3. Compare the handoff with the disk and note differences. ✅ Done (list above).
+4. Read the zstack router and the principle leaves the handoff names. ✅ Done.
+5. Restate the plan before any edit. ✅ This reply.
+6. Settle questions the code can answer, citing the source. Put the rest to you with options. → The two questions below.
+7. Keep `wip:` `72b4867` as the base, and squash or reword it before landing.
+8. Continue the feature playbook from its first unfinished step.
+
+**feature** (picking up from step 2 of the handoff's own todo list)
+1. Restate the feature and its definition of done. ✅
+2. Name the data. ✅ Done by worker-2: search returns a list of note dicts in the same shape as `store.load()` (`acme_notes/store.py:11`).
+3. Look for existing code to reuse. Use `store.load()` and the `cmd_list` print format (`acme_notes/cli.py:16`), with no new dependencies.
+4. Write the planned paths to a scratch file and run `classify.sh --files`: `acme_notes/search.py`, `acme_notes/cli.py`, `tests/test_search.py`. I expect `feature`, not solo.
+5. Write the tests first in `tests/test_search.py`: case-insensitive match, no match, CLI output.
+6. Implement in small ordered commits: (a) lowercase the note text in `search()`; (b) add the `search` subcommand to `cli.py`; (c) add a usage line to the README.
+7. Concurrency test for contested state. **Skipped:** search is read-only.
+8. Record the checks: `zcheck.sh --name unittest -- python3 -m unittest discover -s tests`.
+9. Write the PR body from `templates/pr-body.md`, with a `## How to test` block.
+10. Hand over to `land`.
+
+**land**: commits in order, the evidence packet in the PR body, and the merge pinned to the verified head. Blocked until there's a remote; before any GitHub action I'll check the account per your CLAUDE.md.
+
+**Drive-bys found** (each gets its own `drive-by:` commit):
+- `cli.py:18`: `notes[: args.limit - 1]` is off by one (`--limit 5` shows 4). It qualifies once I add a test for it.
+- README.md: typo "comand-line".
+
+## Questions for you
+1. **Ownership** (a dispute over who owns the branch): (a) worker-2 is finished, so I take over; (b) wait 10 minutes and check again; (c) stop. **I recommend (b).**
+2. **No remote** (scope): (a) add a remote you name; (b) finish locally with checks recorded and leave the PR for later. **I recommend (b)**, which marks "PR open" as not done.
+
+How each principle shaped the plan:
+- **count-the-living:** turned the 30-second-old commit into the first blocker.
+- **evidence-before-the-word:** the handoff's "decision page: no" goes ahead with a note that its source is missing, and nothing will be reported as "passing" until a check is recorded.
+- **ask-with-options:** limited the questions to the two above.
+- **data-shape-first:** I reused worker-2's data shape instead of redoing it.
+- **smallest-reversible-change:** split the work into the three commits plus the separate drive-bys.

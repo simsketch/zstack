@@ -1,0 +1,43 @@
+harness: codex
+prompt: zstack: review the diff on branch feature/tags
+exit: 0  seconds: 25
+zstack files read: SKILL.md, playbooks/review.md, references/harness-capabilities.md, references/principles/evidence-before-the-word.md, references/principles/empty-check-fails.md, references/principles/report-the-guard.md, references/principles/secrets-stay-in-process.md, references/principles/fix-the-class.md, references/principles/name-what-changed.md
+---
+Goal: review `feature/tags`; a completed review would give a verdict for a named commit with findings and check evidence. This dry run stops at planning.
+
+Route: review, shape: inline, principles: evidence-before-the-word, empty-check-fails, report-the-guard, secrets-stay-in-process, fix-the-class
+
+Inline fits because this session did not author the change. No files edited, tests run, or verdict issued.
+
+Todo list, copied verbatim from the playbook; all steps pending except step 10, which is skipped because posting a PR review is outside this dry run:
+
+1. Get the diff with git access in a worktree of the branch (`gh pr checkout <n>` or
+   `git diff <base>...<head>`). A review without the diff in hand returns no verdict.
+2. Write down the head sha being reviewed. For a delta review, review only `git diff <last-reviewed>..<head>`.
+3. Run `<zstack dir>/scripts/classify.sh --pr <n>` (or `--base <base>`). If the class is `solo`, confirm the PR carries
+   the `hold` label.
+4. If the diff touches auth, permissions, secrets, payments, crypto, input parsing at a trust boundary or
+   infrastructure, and the `ship-secure` skill is installed, hand that part to it and include its findings.
+   Without it, review those parts against the checklist in step 6 with extra care.
+5. Read the change against its stated intent: does it do what the ticket says, and only that?
+6. Check, in this order: correctness (edge cases, error paths, off-by-one, nulls), check-then-write races on
+   money or permissions (a concurrency test must exist), data shape and migrations, security (input
+   handling, secrets in code or logs, authorization on every new path), tests (they fail without the
+   change, and the count is non-zero), and readability.
+7. Run the repo-wide guard tests and the area's tests yourself and record them:
+   `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`. Check the PR's own claims against the records with
+   `<zstack dir>/scripts/zcheck.sh --list <head sha>`.
+8. Write findings by severity: blocker, major, minor, nit. Each has `path:line`, what is wrong, why it
+   matters, and a suggested fix.
+9. Give one verdict, exactly one of: `PASS`, `CHANGES NEEDED`, `FIX FIRST`. `FIX FIRST` means a blocker
+   that must be fixed before anything else is reviewed; `CHANGES NEEDED` means majors or minors to address.
+10. Post the review on the PR (`gh pr review <n> --comment --body-file <file>`), naming the head sha the
+    verdict applies to. A later push needs a new verdict for the new commits.
+
+Principle effects on the plan:
+
+- `evidence-before-the-word`: withhold a verdict until the diff and evidence are reviewed.
+- `empty-check-fails`: require nonzero test counts.
+- `report-the-guard`: respect the read-only filesystem; recording checks would require writes.
+- `secrets-stay-in-process`: exclude credential files and secret values from inspection.
+- `fix-the-class`: check findings for sibling defects within the diff.

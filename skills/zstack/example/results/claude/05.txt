@@ -1,0 +1,48 @@
+harness: claude
+prompt: What should I test today? Make me the manual-test checklist for what merged.
+exit: 0  seconds: 50
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/manual-test-checklist.md, references/principles
+---
+This is a dry run, so I stopped before step 1. That step writes the checklist file, and nothing has been edited yet.
+
+```
+Route: manual-test-checklist, shape: inline, principles: spend-attention-carefully, three-words, fix-the-class, evidence-before-the-word
+```
+
+The shape is inline because the script gathers the data and you do the testing, so subagents wouldn't help. I read all four principle files before citing them.
+
+**Todo list** (the playbook's steps, copied word for word):
+
+1. Generate the checklist: `python3 <zstack dir>/scripts/checklist.py generate` (add `--since <ISO time>` or `--repo <owner/name>` when needed). It writes `.git/zstack/checklists/checklist-<YYYY-MM-DD>.md`.
+2. Open the file and read the `## No test steps` section. For each PR listed there, add a `## How to test` block to the PR body (from `<zstack dir>/templates/pr-body.md`), or ask its author to, and regenerate.
+3. Add tickets waiting in `manual-verify` by hand: list them from the tracker and append each as `- [ ] <ticket> <title>: <steps> -> expected <x>  result:` under its environment. The script reads PRs only, so write these tickets' results on the ticket yourself.
+4. Give the human the checklist path and a one-line count: items per environment, plus the smoke list.
+5. While the human tests, keep other work on things that do not need them.
+6. Collect results. The human marks each item `[x]` and fills `result: pass` or `result: fail <note>`, or dictates notes that you write into the file the same way.
+7. Preview the write-back: `python3 <zstack dir>/scripts/checklist.py record <file> --dry-run` and check the comments it would post.
+8. Write results back: `python3 <zstack dir>/scripts/checklist.py record <file>`. Each result becomes a PR comment.
+9. For each `open bug:` line it prints, open a bug ticket with the PR, the steps and the note, and start `bug-class-sweep` (or `debug` when the cause is unknown).
+10. For each item under `## Candidate journey tests`, open a ticket to automate that journey.
+11. Report: passed, failed (with ticket links), untested, and new candidate journey tests.
+
+**Three problems with the real run** (from read-only checks of the repo):
+
+- **The repo has no git remote.** The script reads merged PRs through GitHub, so with no remote it will find nothing or fail. It needs a `--repo <owner/name>` from you, or there are no PRs to read.
+- **There is only one commit and no PR history.** `9196eed acme-notes: add, list and CSV export` (today, 22:12) is the whole history. Without PRs, the checklist would have to come from that commit's changes: add a note, list notes, and CSV export.
+- **There is no smoke list or earlier checklist.** `.git/zstack/smoke.md` and `.git/zstack/checklists/` don't exist yet. The smoke list would be copied from the template, and the start time defaults to 24 hours ago.
+
+**Evidence status for `9196eed`:**
+- **Implemented:** it's on `main` as a commit, with no PR or merge record.
+- **Deployed:** not yet. No environment has been identified.
+- **Verified:** not yet. Your test results will be that evidence.
+
+**What each principle changes in the plan:**
+- **spend-attention-carefully:** you get one checklist grouped by environment instead of one PR at a time, and the missing-remote question is the only one I'm asking.
+- **three-words:** I'm reporting merged, deployed and tested separately for `9196eed`, as above.
+- **fix-the-class:** any failed item becomes a bug that starts a sweep for the same pattern elsewhere (steps 9–10).
+- **evidence-before-the-word:** results will come only from your marks on the checklist, never from assumption.
+
+Plan mode asks for a plan file and an exit-plan call. I wrote no plan file because you said not to edit any files, and the exit-plan tool isn't available in this session.
+
+To run it for real, tell me the GitHub repo (`owner/name`), or tell me to build the checklist from the `9196eed` changes.

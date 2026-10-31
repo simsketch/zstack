@@ -1,0 +1,51 @@
+harness: claude
+prompt: The notes list command is slow on big files, make it faster.
+exit: 0  seconds: 49
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/perf.md, references/principles
+---
+This is a dry run, so I haven't edited any files.
+
+**Goal:** make `python3 -m acme_notes list` faster on a large `notes.json`. It's done when a before and after timing from the same command and the same generated file shows the median moving by more than the run-to-run spread, the output is byte-identical, and the tests pass at the head commit.
+
+```
+Route: perf -> land, shape: inline, principles: numbers-from-tested-queries, subtract-first, smallest-reversible-change, evidence-before-the-word
+```
+
+I picked inline because it's one area (`acme_notes/cli.py` `cmd_list` → `acme_notes/store.py` `load`) and timing a CLI run takes seconds.
+
+**What the code does now:** `cmd_list` calls `store.load()`, which reads the whole file with `json.load`. It then calls `print()` once per note. With `--limit`, it still reads and parses the entire file before slicing.
+
+## Todo list (perf playbook steps, word for word)
+
+1. Write the metric in one line: what is timed, from which start event to which end event, on which data, on which machine or environment.
+   - Plan: wall time of `python3 -m acme_notes list` (and `list --limit 5`) from process start to exit, output sent to `/dev/null`, on a generated 200k-note `notes.json`, on this Mac.
+2. Build a repeatable measurement (a benchmark, a script, a saved profile command) and keep its exact command.
+   - Plan: a script under `.git/zstack/` that builds the file with a fixed seed, plus a saved timing command.
+3. Record the baseline: run it at least three times at the starting commit and note the median and the spread.
+   - At `51dd2c6`, five runs each.
+4. Find the critical path before changing anything: profile, trace, or time the stages, and name the one stage that sets the total. Faster parts elsewhere leave the total unchanged.
+   - `python3 -X importtime` plus `cProfile`, splitting the time between file read, `json.load` and the print loop.
+5. Write a hypothesis for that stage ("N+1 queries in the list endpoint") and the measured gain it predicts.
+   - Likely candidates: one `print` and one stdout write per note, and the full parse even with `--limit`.
+6. Try removing work before adding machinery: fewer calls, less data, a skipped step, a reused result. Reach for caches, parallelism or bigger machines only after that.
+   - First try building the output once and writing it with a single `sys.stdout.write`. No index file, cache or new dependency unless the profile shows parsing is the bottleneck.
+7. Make one change at a time, each in its own commit, and remeasure with the same command on the same baseline after each.
+8. Keep a change only when the measurement moved past the run-to-run spread; revert the rest.
+9. Check that behavior held: run the area's tests through `.claude/skills/zstack/scripts/zcheck.sh --name <check> -- <command>`.
+   - Plan: `zcheck.sh --name unit -- python3 -m unittest discover -s tests`, plus a check that `list` output is byte-identical before and after.
+10. Report before and after side by side: command, commit, data set, median and spread for each.
+
+Then `land`: small ordered commits, the evidence in the PR body, and the merge pinned to the verified head.
+
+## Found while reading
+- **Bug:** `cli.py` uses `notes[: args.limit - 1]`, so `--limit 5` prints only 4 notes. It changes behavior, so it doesn't belong in the speed-up commit. It meets the drive-by rule (one file plus a new test, a few lines), so it would get its own `drive-by:` commit with a test, or a ticket if you'd rather keep this PR to speed only. Should it go in this PR?
+- **Typo:** "comand" in `README.md`, as a separate `drive-by:` commit.
+
+## How the principles shaped the plan
+- **numbers-from-tested-queries:** every timing will come from the saved command and generated file, and the byte-identical output check guards the result.
+- **subtract-first:** it put "less work per call" (one write, no extra parsing) ahead of any cache or index.
+- **smallest-reversible-change:** each change gets its own commit, and the limit fix and the typo stay out of the speed-up commit.
+- **evidence-before-the-word:** I won't say "faster" or "passing" without the before and after numbers and the recorded check at the head sha.
+
+I also tried to write this plan to `~/.claude/plans/the-notes-list-command-enumerated-sunset.md`, but the permission classifier blocked it. Everything is above, so you don't need that file.

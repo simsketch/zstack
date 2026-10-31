@@ -1,0 +1,50 @@
+harness: claude
+prompt: Add a tags field to notes: stored, exported in the CSV, and filterable from the CLI.
+exit: 0  seconds: 59
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/feature.md, references/principles/, references/principles, references/principles/name-what-changed.md
+---
+This is a dry run, so here are the route line and the todo list, and I've stopped before editing anything. I tried to save the plan to `~/.claude/plans/add-a-tags-field-replicated-shell.md` through the shell, but the permission check blocked it. I didn't retry, so the plan exists only in this reply.
+
+```
+Route: feature -> land, shape: inline, principles: data-shape-first, subtract-first, smallest-reversible-change, ask-with-options, leave-it-better-separately, name-what-changed
+```
+
+**Shape:** inline. The change is small and touches one package (`store.py`, `export.py`, `cli.py` and their tests), and "done" is clear.
+
+**Data:**
+- **Store:** each note gets `tags`, a list of strings, saved in notes.json by `acme_notes/store.py`.
+- **Existing notes:** older notes have no `tags` key and read as `[]`, so existing files keep working without a migration.
+- **CSV:** a new `tags` column after `created`, with tags joined by `;`.
+- **CLI:** `add --tag X` (repeatable) and `list --tag X` (repeatable; a note must have every tag given).
+
+### Todo list (feature playbook steps, word for word)
+1. Restate the feature and its definition of done in one or two lines. If done is unclear, ask the user one question with options before writing code.
+2. Name the data first: which records or fields are created, read, changed or deleted, which module owns each, and where it is stored. Write this as a short list in the PR description draft.
+3. Look for what already exists: a helper, component, endpoint or flag that does most of this. Reuse or extend it before adding a new one, and remove anything the feature makes dead.
+4. Write the planned file paths one per line to a scratch file and run `classify.sh --files <that file>`. If the result is `solo`, the PR opens with the `hold` label and runs as its own piece of work.
+5. Write the tests first where the repo has tests: one per behavior in the definition of done, failing for the right reason.
+6. Implement in small ordered commits, each one leaving the build green and revertable on its own.
+7. For any change that checks a value and then writes money, permissions or other contested state, add a concurrency test and fence the check and the write with the same lock, constraint or version check. *(Skipped: tags aren't contested state.)*
+8. Record the checks at the head commit on a clean tree: `zcheck.sh --name <check> -- <command>` for tests, and `zcheck.sh --name lint --no-count -- <lint command>` for checks without a test count.
+9. Write the PR body from `templates/pr-body.md`, including a `## How to test` block a human can follow without reading the code.
+10. Hand over to `land`.
+
+### Bugs found while reading (each fixed in its own `drive-by:` commit before the tags work)
+- **`acme_notes/export.py:11`:** `range(len(notes) - 1)` leaves the last note out of every CSV export. This would also hide a tags export test, so it has to be fixed first.
+- **`acme_notes/cli.py:21`:** `notes[: args.limit - 1]` makes `list --limit 5` print only 4 notes.
+- **`README.md:3`:** typo, "comand" should be "command".
+
+**Planned files:** `acme_notes/store.py`, `acme_notes/export.py`, `acme_notes/cli.py`, `tests/test_store.py`, `tests/test_export.py`, a new `tests/test_cli.py`, and `README.md`.
+
+**How it will be checked:** `python3 -m unittest discover -s tests`, recorded with `zcheck.sh` at the head commit, then a manual run of `add --tag`, `list --tag` and `export`.
+
+**What each principle changed:**
+- **data-shape-first:** settled the tags format and the plan for older notes before any CLI code, which is why there's no migration.
+- **subtract-first:** reuses `store.load`/`save` and `export.FIELDS` rather than adding new helpers.
+- **smallest-reversible-change:** the bug fixes, storage, export and CLI each go in a separate commit.
+- **ask-with-options:** nothing needed asking. The repeatable flag, AND matching and `;` separator are reversible defaults, so they aren't on the list of decisions that go to you.
+- **leave-it-better-separately:** the three bugs above go in separate `drive-by:` commits.
+- **name-what-changed:** this list.
+
+Say go and I'll start with the three bug fixes.

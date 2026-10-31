@@ -1,0 +1,37 @@
+harness: claude
+prompt: Is the CSV export fix live in production yet?
+exit: 0  seconds: 45
+skill tool calls: zstack
+zstack files read: SKILL.md, playbooks/verify-release.md, references/principles/, references/principles
+---
+I haven't checked production yet. You asked for a dry run, so I stopped at the plan. Here is the route and todo list. Nothing has been edited, and the plan file wasn't saved because its folder `~/.claude/plans/` doesn't exist.
+
+```
+Route: verify-release, shape: inline, principles: three-words, evidence-before-the-word, secrets-stay-in-process, ask-with-options
+```
+
+**Todo list** (the verify-release playbook steps, word for word):
+
+1. Find the change commit: the merge commit or the squashed commit on the base branch (`gh pr view <n> --json mergeCommit,mergedAt`). No merge means Implemented is "no", and the report ends there.
+2. Name the app or service the change touched. When a merge touched several, check each one separately; proof for one app says nothing about another.
+3. For each environment, find the commit the serving artifact was built from: a version endpoint, the image tag or label, or the deploy record. Write down where the value came from.
+4. Prove it contains the change: `git merge-base --is-ancestor <change sha> <serving sha>` exits 0. A green workflow, a tag or a merged PR on its own is not proof of deployment.
+5. Check the behavior there: follow the PR's `## How to test` block in that environment, or run its smoke journey, and note who checked, when, and the result.
+6. For production, confirm health returns success and the production invariants the repo defines (named config flags and their required values) hold. Read flag names and non-secret values only.
+7. Report three separate lines:
+   - Implemented: yes/no, merge sha.
+   - Deployed: per environment, yes/no, serving sha and where it was read.
+   - Verified: per environment, yes/no, who, when, what was checked.
+8. Write the same three lines on the ticket and the PR. Promoting to production stays with the human unless the repo records a delegation; this playbook reports and never promotes.
+
+**What step 1 is likely to find:** I looked at the git history and remotes without changing anything:
+- The repo has **no git remote**, so `gh pr view` has no PR to look up.
+- **No commit is a CSV fix.** The CSV export first appears in `8befad3` ("add, list and CSV export"). The two later commits are about tags (`9bb287b`) and a half-finished search module (`a38e92f`).
+
+Unless the fix lives on a branch, PR or ticket I haven't found, the answer is likely **Implemented: no**, and the report would end at step 1. Give me the PR number, ticket or commit if there is one.
+
+**Principles and what each changed:**
+- **three-words:** the answer will be three separate lines (implemented, deployed, verified) instead of one yes/no.
+- **evidence-before-the-word:** I won't call it "live" until the version running in production is shown to contain the fix commit.
+- **secrets-stay-in-process:** step 6 reads only config flag names and non-secret values.
+- **ask-with-options:** promoting to production stays your call. This playbook only reports.
