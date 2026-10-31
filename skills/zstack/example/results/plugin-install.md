@@ -2,7 +2,7 @@
 
 Recorded 2026-10-30 on macOS against a local checkout of this repo, each harness pointed at a throwaway
 config folder so no real profile was touched. Temp paths are shown as `<tmp>` and the checkout as
-`<zstack checkout>`. The CLIs' status symbols are shown as `[ok]`, `[warn]` and `>`. For the published repo, replace the checkout path with `<owner>/zstack`.
+`<zstack checkout>`. The CLIs' status symbols are shown as `[ok]`, `[warn]` and `>`. For the published repo, replace the checkout path with `simsketch/zstack`.
 
 ## Summary
 
@@ -13,7 +13,7 @@ config folder so no real profile was touched. Temp paths are shown as `<tmp>` an
 | Listed as | installed, enabled, 1.0.0 | installed, enabled, 1.0.0 |
 | Skill name on this route | `zstack:zstack` (session init lists the skill and slash command as `zstack:zstack`) | `zstack:zstack` (`codex debug prompt-input` lists `zstack:zstack` under Available skills) |
 | Session-start hook | ran at startup, exit 0, printed the two-line hint | not live-tested (see below) |
-| `claude plugin validate .` | passed (three listing warnings: no icon, and the `<owner>` placeholder URLs) | n/a |
+| `claude plugin validate .` | passed (three listing warnings: no icon, and the `<owner>` placeholder URLs, recorded before the owner was set to simsketch) | n/a |
 
 The headless Claude Code session stopped at "Not logged in" after startup, which is expected for a fresh
 config folder; the skill list and the hook output come from the session's init and hook events, which

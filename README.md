@@ -155,7 +155,7 @@ Restart your agent session after installing.
 **Any harness, from a clone:**
 
 ```
-git clone https://github.com/<owner>/zstack.git
+git clone https://github.com/simsketch/zstack.git
 ./zstack/install.sh
 ```
 
@@ -166,25 +166,25 @@ replace a real folder of the same name. `./install.sh --uninstall` removes only 
 **Claude Code:** in one step (Claude Code 2.1.275 or later):
 
 ```
-/plugin install zstack --marketplace <owner>/zstack
+/plugin install zstack --marketplace simsketch/zstack
 ```
 
-or in two: `/plugin marketplace add <owner>/zstack`, then `/plugin install zstack@zstack`. From a shell,
-`claude plugin install zstack --marketplace <owner>/zstack` does the same. A plugin skill is namespaced,
+or in two: `/plugin marketplace add simsketch/zstack`, then `/plugin install zstack@zstack`. From a shell,
+`claude plugin install zstack --marketplace simsketch/zstack` does the same. A plugin skill is namespaced,
 so on this route invoke it with `/zstack:zstack <goal>` (or state the goal); with the installer it is
 `/zstack <goal>`.
 
-**Codex CLI:** `codex plugin marketplace add <owner>/zstack`, then `codex plugin add zstack@zstack`, or
+**Codex CLI:** `codex plugin marketplace add simsketch/zstack`, then `codex plugin add zstack@zstack`, or
 use the installer. The plugin skill is listed as `zstack:zstack`; state the goal or mention the skill.
 
 **Cursor:** load the repo's root `plugin.json`, or rely on the `~/.agents/skills/` symlink.
 
-**Gemini CLI:** `gemini extensions install https://github.com/<owner>/zstack`, or use the symlink, then
+**Gemini CLI:** `gemini extensions install https://github.com/simsketch/zstack`, or use the symlink, then
 `/skills reload`.
 
 **OpenCode:** the `~/.agents/skills/` symlink from the installer; no plugin needed.
 
-**Pi:** `pi install git:https://github.com/<owner>/zstack`, or use the symlink.
+**Pi:** `pi install git:https://github.com/simsketch/zstack`, or use the symlink.
 
 The Claude Code and Codex plugin installs also add a session-start hook that prints a two-line routing
 hint; it reads no files and takes no action. The Claude Code hook was seen running on a clean profile.

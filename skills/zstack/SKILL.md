@@ -4,7 +4,7 @@ description: Routes a non-trivial engineering goal to a playbook, an execution s
 license: MIT
 metadata:
   version: "1.0.0"
-  source: "https://github.com/<owner>/zstack"
+  source: "https://github.com/simsketch/zstack"
 ---
 
 # zStack
