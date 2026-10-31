@@ -28,8 +28,8 @@ manual-test failure opens a bug. The goal is to find and handle every other inst
 8. Write the "why tests and QA missed it" note: one paragraph on the gap that let the class through.
 9. Add a guardrail in its own commit: a lint rule, guard test or validator that fails on the pattern.
    Prove it by running it against the unfixed code (it fails) and the fixed code (it passes), and record it
-   with `scripts/zcheck.sh --name <guardrail> -- <command>`.
-10. Write the report from `templates/sweep-report.md` to `.git/zstack/sweeps/<YYYY-MM-DD>-<class-slug>.md`.
+   with `<zstack dir>/scripts/zcheck.sh --name <guardrail> -- <command>`.
+10. Write the report from `<zstack dir>/templates/sweep-report.md` to `.git/zstack/sweeps/<YYYY-MM-DD>-<class-slug>.md`.
 11. Link the original bug, every fix commit, every ticket and the guardrail in the PR body and on the
     original ticket.
 

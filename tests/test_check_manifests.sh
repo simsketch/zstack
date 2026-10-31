@@ -72,4 +72,14 @@ OUT="$(bash "$CHECK" "$d" 2>&1)"; RC=$?
 assert_eq 1 "$RC" "catalog entry with no file fails"
 assert_contains "$OUT" "land" "missing playbook file is named"
 
+# Every shipped playbook keeps the seven-part shape, in order.
+for f in "$ZT_ROOT"/skills/zstack/playbooks/*.md; do
+  [ -f "$f" ] || continue
+  n="$(basename "$f" .md)"
+  got="$(grep -E '^(# |\*\*Use when:\*\*|## (Inputs|Steps|Done when|Principles|Preferred shape)$)' "$f" \
+    | sed -E 's/^\*\*Use when:\*\*.*/Use when/' | tr '\n' '|')"
+  assert_eq "# $n|Use when|## Inputs|## Steps|## Done when|## Principles|## Preferred shape|" "$got" \
+    "playbook $n has the seven parts in order"
+done
+
 finish

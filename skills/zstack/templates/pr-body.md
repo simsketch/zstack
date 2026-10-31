@@ -14,7 +14,7 @@ Route: <playbook>[ -> <chained>], shape: <shape>, principles: <p1>, <p2>
 ## Evidence
 
 Head: <full head sha>
-Class: <docs|tests|small-ui|feature|solo> (from scripts/classify.sh)
+Class: <docs|tests|small-ui|feature|solo> (from <zstack dir>/scripts/classify.sh)
 
 | Check | Exit | Tests | Clean | Recorded at |
 |---|---|---|---|---|

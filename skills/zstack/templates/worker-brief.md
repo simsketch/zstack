@@ -1,6 +1,8 @@
 Read the zstack router first (the zstack skill's SKILL.md), then the playbook and principle leaves named
 below. Read each principle leaf before you apply it.
 
+zstack dir: {{ZSTACK_DIR}} (scripts and templates below live there)
+
 ## Your task
 
 Ticket: <key or link>
@@ -26,8 +28,8 @@ If you need a file outside these lists that another worker may be editing, repor
 1. Copy the playbook's steps into your todo list word for word; keep skipped steps with a reason.
 2. Stage by path, check `git diff --cached --stat` before each commit, and use WIP commits instead of
    `git stash`.
-3. Record checks with `scripts/zcheck.sh --name <check> -- <command>` on a clean tree at your head commit.
-4. Open the PR with the body from `templates/pr-body.md` when the playbook says to. Leave merging and
+3. Record checks with `{{ZSTACK_DIR}}/scripts/zcheck.sh --name <check> -- <command>` on a clean tree at your head commit.
+4. Open the PR with the body from `{{ZSTACK_DIR}}/templates/pr-body.md` when the playbook says to. Leave merging and
    deploying to the coordinator.
 
 ## Drive-by rule

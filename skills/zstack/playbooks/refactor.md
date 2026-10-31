@@ -14,14 +14,14 @@ merges, extracting a module, replacing a library behind the same interface.
 1. Write the invariant in one line: what must behave identically before and after.
 2. Check the coverage of that surface. Where tests are thin, add characterization tests first, or capture
    outputs: run a fixed set of inputs at the starting commit and save the outputs to a file outside the repo.
-3. Record the baseline checks at the starting commit: `scripts/zcheck.sh --name <check> -- <command>`.
+3. Record the baseline checks at the starting commit: `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`.
 4. Delete before you move: remove dead code, unused exports and stale flags in their own commits first.
 5. Make the structural change in small mechanical steps, one kind of change per commit (rename, then move,
    then split), keeping every commit green.
 6. After each step run the covering tests; stop and back up one commit when one fails.
 7. At the end, rerun the captured inputs and diff the outputs against the saved baseline. The diff is empty,
    or every difference is listed and explained as a bug the refactor fixed on purpose.
-8. Record the same checks at the head commit with `scripts/zcheck.sh` and compare test counts with the
+8. Record the same checks at the head commit with `<zstack dir>/scripts/zcheck.sh` and compare test counts with the
    baseline; a lower count needs an explanation.
 9. Put the invariant, the proof (test counts before and after, the empty output diff) and the commit list
    in the PR body.

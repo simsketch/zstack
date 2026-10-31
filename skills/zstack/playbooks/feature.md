@@ -17,17 +17,17 @@
 3. Look for what already exists: a helper, component, endpoint or flag that does most of this. Reuse or
    extend it before adding a new one, and remove anything the feature makes dead.
 4. Write the planned file paths one per line to a scratch file and run
-   `scripts/classify.sh --files <that file>`. If the result is `solo`, the PR opens with the `hold` label
+   `<zstack dir>/scripts/classify.sh --files <that file>`. If the result is `solo`, the PR opens with the `hold` label
    and runs as its own piece of work.
 5. Write the tests first where the repo has tests: one per behavior in the definition of done, failing for
    the right reason.
 6. Implement in small ordered commits, each one leaving the build green and revertable on its own.
 7. For any change that checks a value and then writes money, permissions or other contested state, add a
    concurrency test and fence the check and the write with the same lock, constraint or version check.
-8. Record the checks at the head commit on a clean tree: `scripts/zcheck.sh --name <check> -- <command>`
-   for tests, and `scripts/zcheck.sh --name lint --no-count -- <lint command>` for checks without a test
+8. Record the checks at the head commit on a clean tree: `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`
+   for tests, and `<zstack dir>/scripts/zcheck.sh --name lint --no-count -- <lint command>` for checks without a test
    count.
-9. Write the PR body from `templates/pr-body.md`, including a `## How to test` block a human can follow
+9. Write the PR body from `<zstack dir>/templates/pr-body.md`, including a `## How to test` block a human can follow
    without reading the code.
 10. Hand over to `land`.
 

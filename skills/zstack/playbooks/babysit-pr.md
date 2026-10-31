@@ -23,8 +23,9 @@ unanswered review threads, or has failing or missing checks.
    reply with the reason it was not changed. Questions about product or scope go to the user with options.
 6. For each failing check: read the log, reproduce locally, fix in its own commit. A failure unrelated to
    this PR gets reported with evidence, and stays out of this PR.
-7. Record every required check at the new head on a clean tree: `scripts/zcheck.sh --name <check> -- <command>`.
-8. Push once, after the local checks pass.
+7. Record every required check at the new head on a clean tree: `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`.
+8. Push once, after the local checks pass. After a rebase use `git push --force-with-lease`; a bare
+   `--force` can overwrite someone else's push.
 9. For CI, read the status once per wake-up. Schedule a wake-up for later rather than watching; continuous
    watch commands are off limits.
 10. If the PR carries `hold` and anything was pushed after a review, ask for a delta review (`review` on

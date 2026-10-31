@@ -15,7 +15,7 @@ worktree, a PR someone else opened, or "carry on where we left off".
    as live when it produced output in the last 10 minutes). If one is, stop and report.
 2. Read the state from disk, in this order: the handoff file, `git log --oneline <base>..HEAD`,
    `git status`, the PR body and its review threads, `.git/zstack/decisions.md` for entries on this work,
-   and `scripts/zcheck.sh --list` for checks already recorded.
+   and `<zstack dir>/scripts/zcheck.sh --list` for checks already recorded.
 3. Compare the handoff with what is on disk. Note any difference (a commit the handoff does not mention,
    a check recorded at an older sha), and treat the disk as the truth.
 4. Read the zstack router and the principle leaves the handoff names before applying them.

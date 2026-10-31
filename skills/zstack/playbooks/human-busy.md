@@ -8,13 +8,13 @@ wait on one page.
 
 - How long the human expects to be away, if they said.
 - The work in flight: playbooks, lanes, open questions.
-- `.git/zstack/decisions.md` (created from `templates/decision-page.md` if missing) and `notify_cmd=` in
+- `.git/zstack/decisions.md` (created from `<zstack dir>/templates/decision-page.md` if missing) and `notify_cmd=` in
   `.git/zstack/config`.
 
 ## Steps
 
 1. Say in one line that human-busy mode is on, and until when if known.
-2. Move every open question to `.git/zstack/decisions.md`, one entry each from `templates/decision-page.md`:
+2. Move every open question to `.git/zstack/decisions.md`, one entry each from `<zstack dir>/templates/decision-page.md`:
    question, options, recommendation, what it blocks, the default and the time it applies, status `open`.
 3. Sort each question. A question in the protected list (product behavior, scope, money, data deletion,
    security, production, disputes) waits for the human. Any other question with a reversible default goes

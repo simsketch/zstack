@@ -12,7 +12,8 @@
 # starting with 'case:' is matched case-sensitively (still whole-word).
 #
 # Exit 0 when clean, 1 with one 'file:line: <rule>' line per hit (the matched
-# text is never printed), 2 on usage errors. Skips .git/ (and the .git file a worktree has) and binary files.
+# text is never printed), 2 on usage errors. Skips .git/, the .git file a
+# worktree has, and binary files.
 set -u
 
 usage() { echo "usage: prepublish-grep.sh [--terms <file>] [path...]" >&2; exit 2; }

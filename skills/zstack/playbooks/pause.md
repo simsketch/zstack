@@ -15,14 +15,15 @@ switch tasks, or a worker is being replaced. Another agent should be able to res
    describe in one sentence.
 2. Stop the processes you started, each by its captured pid or by a path inside this worktree. Leave
    everything else running.
-3. Fill `templates/handoff.md` and save it to `.git/zstack/handoffs/<branch>.md`: goal and done,
-   route line, todo list with status, what is in progress, decisions taken and their sources, open
-   questions, commands to rerun, and known traps.
-4. Commit everything that matters as a WIP commit: stage by path, check `git diff --cached --stat`, and
-   commit with subject `wip: <one-line state>` and the handoff text as the commit body. Use a commit
-   instead of `git stash`, which is shared across worktrees.
+3. Fill `<zstack dir>/templates/handoff.md` and save it to `.git/zstack/handoffs/<branch>.md`, creating
+   parent directories first (a branch like `feat/x` nests one level). Cover goal and done, route line,
+   todo list with status, what is in progress, decisions taken and their sources, open questions,
+   commands to rerun, and known traps.
+4. Commit or delete every changed and untracked path, using a WIP commit: stage by path, check
+   `git diff --cached --stat`, and commit with subject `wip: <one-line state>` and the handoff text as the
+   commit body. Use a commit instead of `git stash`, which is shared across worktrees.
 5. On the now clean tree, record the checks you rely on at the WIP commit:
-   `scripts/zcheck.sh --name <check> -- <command>`. Add the results to the handoff file.
+   `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`. Add the results to the handoff file.
 6. If the repo's rules allow pushing work branches, push the branch so the work survives this machine.
 7. Confirm nothing is left only in the working tree: `git status --porcelain` prints nothing, and
    `git log -1` shows the WIP commit.

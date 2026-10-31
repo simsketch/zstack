@@ -8,26 +8,29 @@ waiting in `manual-verify`.
 - The repo (`--repo <owner/name>` when it differs from the current one).
 - The time to start from (`--since <ISO time>`; the default is the last generated checklist, else 24 hours
   ago).
-- `.git/zstack/smoke.md`, the repo's fixed smoke list (copy `templates/smoke.md` there and edit it if it is
+- `.git/zstack/smoke.md`, the repo's fixed smoke list (copy `<zstack dir>/templates/smoke.md` there and edit it if it is
   missing).
 
 ## Steps
 
-1. Generate the checklist: `python3 scripts/checklist.py generate` (add `--since <ISO time>` or
+1. Generate the checklist: `python3 <zstack dir>/scripts/checklist.py generate` (add `--since <ISO time>` or
    `--repo <owner/name>` when needed). It writes `.git/zstack/checklists/checklist-<YYYY-MM-DD>.md`.
 2. Open the file and read the `## No test steps` section. For each PR listed there, add a `## How to test`
-   block to the PR body (from `templates/pr-body.md`), or ask its author to, and regenerate.
-3. Give the human the checklist path and a one-line count: items per environment, plus the smoke list.
-4. While the human tests, keep other work on things that do not need them.
-5. Collect results. The human marks each item `[x]` and fills `result: pass` or `result: fail <note>`, or
+   block to the PR body (from `<zstack dir>/templates/pr-body.md`), or ask its author to, and regenerate.
+3. Add tickets waiting in `manual-verify` by hand: list them from the tracker and append each as
+   `- [ ] <ticket> <title>: <steps> -> expected <x>  result:` under its environment. The script reads
+   PRs only, so write these tickets' results on the ticket yourself.
+4. Give the human the checklist path and a one-line count: items per environment, plus the smoke list.
+5. While the human tests, keep other work on things that do not need them.
+6. Collect results. The human marks each item `[x]` and fills `result: pass` or `result: fail <note>`, or
    dictates notes that you write into the file the same way.
-6. Preview the write-back: `python3 scripts/checklist.py record <file> --dry-run` and check the comments it
+7. Preview the write-back: `python3 <zstack dir>/scripts/checklist.py record <file> --dry-run` and check the comments it
    would post.
-7. Write results back: `python3 scripts/checklist.py record <file>`. Each result becomes a PR comment.
-8. For each `open bug:` line it prints, open a bug ticket with the PR, the steps and the note, and start
+8. Write results back: `python3 <zstack dir>/scripts/checklist.py record <file>`. Each result becomes a PR comment.
+9. For each `open bug:` line it prints, open a bug ticket with the PR, the steps and the note, and start
    `bug-class-sweep` (or `debug` when the cause is unknown).
-9. For each item under `## Candidate journey tests`, open a ticket to automate that journey.
-10. Report: passed, failed (with ticket links), untested, and new candidate journey tests.
+10. For each item under `## Candidate journey tests`, open a ticket to automate that journey.
+11. Report: passed, failed (with ticket links), untested, and new candidate journey tests.
 
 ## Done when
 

@@ -12,15 +12,15 @@ queue across repos or accounts goes to a fleet wave instead.
 
 ## Steps
 
-1. Print the trust table with `scripts/trust.sh` and write down, per class, whether zStack may merge (L2 or
+1. Print the trust table with `<zstack dir>/scripts/trust.sh` and write down, per class, whether zStack may merge (L2 or
    higher) or only open PRs.
 2. For each ticket, confirm nobody owns it: search open PRs, remote branches and local worktrees for the
    ticket key. Any hit means it is owned; skip it and note why.
-3. Predict the files each ticket will touch and classify them (`scripts/classify.sh --files <list>`).
+3. Predict the files each ticket will touch and classify them (`<zstack dir>/scripts/classify.sh --files <list>`).
    Tickets whose predicted files overlap go in the same lane or run in sequence. Solo-class tickets run
    alone and open with `hold`.
 4. Give each ticket one owner: spawn a background subagent in its own worktree with a brief from
-   `templates/worker-brief.md`, naming the playbook that fits the ticket (`feature`, `debug`, `refactor`
+   `<zstack dir>/templates/worker-brief.md`, naming the playbook that fits the ticket (`feature`, `debug`, `refactor`
    and so on) and the principles in force. Hot files (lockfiles, CI workflows, migration indexes, route
    registries) are leased to one worker at a time.
 5. Start at most three workers at a time, and add more only while the machine stays responsive.
@@ -32,7 +32,7 @@ queue across repos or accounts goes to a fleet wave instead.
 8. When a worker reports a PR open, have a second agent (a different worker from the author) run `review`
    on it at its head sha.
 9. Run `land` for each PR that passed review, one merge at a time, oldest first. Merge only where
-   `scripts/trust.sh --gate <class>` passes; everything else waits for the human with its evidence.
+   `<zstack dir>/scripts/trust.sh --gate <class>` passes; everything else waits for the human with its evidence.
 10. After each merge, list PRs that went behind or conflicting and send them through `babysit-pr`, oldest
     first, one rebase each.
 11. Schedule a wake-up between rounds instead of waiting on workers or watching CI.

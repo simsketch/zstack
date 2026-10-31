@@ -14,7 +14,7 @@
 1. Get the diff with git access in a worktree of the branch (`gh pr checkout <n>` or
    `git diff <base>...<head>`). A review without the diff in hand returns no verdict.
 2. Write down the head sha being reviewed. For a delta review, review only `git diff <last-reviewed>..<head>`.
-3. Run `scripts/classify.sh --pr <n>` (or `--base <base>`). If the class is `solo`, confirm the PR carries
+3. Run `<zstack dir>/scripts/classify.sh --pr <n>` (or `--base <base>`). If the class is `solo`, confirm the PR carries
    the `hold` label.
 4. If the diff touches auth, permissions, secrets, payments, crypto, input parsing at a trust boundary or
    infrastructure, and the `ship-secure` skill is installed, hand that part to it and include its findings.
@@ -25,8 +25,8 @@
    handling, secrets in code or logs, authorization on every new path), tests (they fail without the
    change, and the count is non-zero), and readability.
 7. Run the repo-wide guard tests and the area's tests yourself and record them:
-   `scripts/zcheck.sh --name <check> -- <command>`. Check the PR's own claims against the records with
-   `scripts/zcheck.sh --list <head sha>`.
+   `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`. Check the PR's own claims against the records with
+   `<zstack dir>/scripts/zcheck.sh --list <head sha>`.
 8. Write findings by severity: blocker, major, minor, nit. Each has `path:line`, what is wrong, why it
    matters, and a suggested fix.
 9. Give one verdict, exactly one of: `PASS`, `CHANGES NEEDED`, `FIX FIRST`. `FIX FIRST` means a blocker

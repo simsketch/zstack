@@ -22,7 +22,7 @@ crash, a wrong value on a screen. When the cause is already known, go straight t
    unexplained is a partial cause; return to step 4.
 7. Make sure the reproduction is captured as a test that fails on the current code.
 8. Make the smallest change that fixes the root cause, in its own commit.
-9. Record the checks at the fix commit on a clean tree: `scripts/zcheck.sh --name <check> -- <test command>`
+9. Record the checks at the fix commit on a clean tree: `<zstack dir>/scripts/zcheck.sh --name <check> -- <test command>`
    for the new test and the suite that covers the area. A check that ran zero tests failed.
 10. Confirm the original symptom is gone the way it was first seen (same environment, same steps).
 11. Chain into `bug-class-sweep` with the root cause as its input. When the bug is a true one-off (a typo,

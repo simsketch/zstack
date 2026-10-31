@@ -25,7 +25,7 @@ suite, a CI run. If nobody has measured it yet, the first step below is the meas
 7. Make one change at a time, each in its own commit, and remeasure with the same command on the same
    baseline after each.
 8. Keep a change only when the measurement moved past the run-to-run spread; revert the rest.
-9. Check that behavior held: run the area's tests through `scripts/zcheck.sh --name <check> -- <command>`.
+9. Check that behavior held: run the area's tests through `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`.
 10. Report before and after side by side: command, commit, data set, median and spread for each.
 
 ## Done when
