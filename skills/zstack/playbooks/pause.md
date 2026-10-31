@@ -19,7 +19,9 @@ switch tasks, or a worker is being replaced. Another agent should be able to res
    parent directories first (a branch like `feat/x` nests one level). Cover goal and done, route line,
    todo list with status, what is in progress, decisions taken and their sources, open questions,
    commands to rerun, and known traps.
-4. Commit or delete every changed and untracked path, using a WIP commit: stage by path, check
+4. Put every changed and untracked path in a WIP commit. Delete only files this session created and
+   no longer needs; any other untracked file you did not make is committed or listed in the handoff
+   for the human, never deleted. Stage by path, check
    `git diff --cached --stat`, and commit with subject `wip: <one-line state>` and the handoff text as the
    commit body. Use a commit instead of `git stash`, which is shared across worktrees.
 5. On the now clean tree, record the checks you rely on at the WIP commit:

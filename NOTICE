@@ -28,7 +28,7 @@ David Ondrej's skills
 
 pstack-claude
   License: MIT
-  Copyright: Michael Denyer
+  Copyright: (c) 2026 Lauren Tan, as its LICENSE file states (a port by Michael Denyer)
   URL: https://github.com/michael-denyer/pstack-claude
   Inspired: one skills tree with thin per-harness manifests; a session-start routing hook; a
   per-harness tool mapping.

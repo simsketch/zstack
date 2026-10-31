@@ -23,7 +23,8 @@ wait on one page.
    that is free of open questions works on its own open PRs (`babysit-pr`) before it goes idle.
 5. Move tickets that need hands-on testing to `manual-verify`, and leave them to `manual-test-checklist`
    instead of blocking on them.
-6. Send the human one short message when the decision page changes (through `notify_cmd` when it is set),
+6. Send the human one short message when the decision page changes (through `notify_cmd` in
+   `.git/zstack/config` when it is set, else through zstack-fleet's `notify.sh` when fleet is installed),
    with the count of open entries and the path. One message per change of the page, never one per question.
 7. At each stated default time, apply the default for non-protected entries and mark them `revisit`.
 8. When the human answers, apply each answer, reverse any `revisit` default the answer contradicts (as its
