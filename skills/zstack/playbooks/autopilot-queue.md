@@ -23,10 +23,14 @@ queue across repos or accounts goes to a fleet wave instead.
    `<zstack dir>/templates/worker-brief.md`, naming the playbook that fits the ticket (`feature`, `debug`, `refactor`
    and so on) and the principles in force. Hot files (lockfiles, CI workflows, migration indexes, route
    registries) are leased to one worker at a time.
-5. Start at most three workers at a time, and add more only while the machine stays responsive.
+5. Start at most three workers in any two minutes, and add more only while the machine stays
+   responsive. Tell every worker to read `.git/zstack/board.md` before it starts and to append a one-line
+   `FAIL` entry (what was tried, why it failed, commit or log) whenever an approach fails, so the others
+   skip that dead end.
 6. Count a worker as alive only when it produced output (a report, a commit or a file change) in the last
    10 minutes. Nudge it at 30 minutes of silence; at 60, stop it by its captured pid and start a fresh worker
-   in the same worktree.
+   in the same worktree. Its claim on the ticket and its leased files expires at the same point, so
+   another worker may take them over.
 7. Questions that need the human go to `.git/zstack/decisions.md` as in `human-busy`; workers move to
    work that does not need the answer.
 8. When a worker reports a PR open, have a second agent (a different worker from the author) run `review`

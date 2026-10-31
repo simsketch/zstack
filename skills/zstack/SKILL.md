@@ -86,6 +86,10 @@ left after all six is the one you run.
    drift of the open queue. A Slow or Drain merge mode caps new work and points workers at open PRs.
 6. **The human's state.** In human-busy mode, prefer shapes that need no answer soon.
 
+**Starting a lane.** Start workers a few at a time, at most three in any two minutes, and wait for
+each batch to report before starting the next. A slow start spreads the load on the machine and the
+repo, and a bad brief shows up after three workers instead of six.
+
 When you choose a smaller shape than the work wanted, name the signal that capped it in one line, for
 example: "wanted a lane;
 this harness has no background subagents, so the three pieces run in sequence."

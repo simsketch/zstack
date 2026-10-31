@@ -15,6 +15,7 @@ else, which tests use.
 | `smoke.md` | the human (from `<zstack dir>/templates/smoke.md`) | the fixed smoke list appended to every manual-test checklist |
 | `checklists/checklist-<YYYY-MM-DD>.md` | `<zstack dir>/scripts/checklist.py generate` | the day's manual-test checklist with result fields |
 | `checklists/history.jsonl` | `<zstack dir>/scripts/checklist.py generate` | items per checklist, used to spot candidate journey tests |
+| `board.md` | any worker whose approach failed | one `FAIL` line per dead end: what was tried, why it failed, the commit or log that shows it; read before starting a ticket |
 | `handoffs/<branch>.md` | `pause` (from `<zstack dir>/templates/handoff.md`) | where the work stands, what is next, open questions; read by `pickup` |
 | `playbooks/<name>.md` | the router, step 2 | one-off playbooks written for goals the catalog does not cover |
 

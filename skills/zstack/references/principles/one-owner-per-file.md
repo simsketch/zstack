@@ -18,3 +18,5 @@ dispatch also stops two workers from doing the same ticket.
   means it is owned.
 - A worker that needs a file outside its lease asks the coordinator instead of editing it.
 - No two workers share one worktree.
+- A claim on a ticket or hot file expires after about 60 minutes with no output from its holder; only
+  then may another worker take it, and the hand-over is noted in the coordinator's log.

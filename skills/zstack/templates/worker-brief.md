@@ -52,6 +52,13 @@ commit with the subject prefix `drive-by:` and list it under `## Drive-bys`. Any
 - Leave the GitHub account alone (`gh auth switch` is off limits), and skip `--no-verify`.
 - When your context gets large, run the `pause` playbook and write a handoff file.
 
+## Shared board
+
+Before you start, read `.git/zstack/board.md` (it may not exist yet) and skip any approach already
+listed there as failed. When an approach of yours fails, append one line before you try the next one:
+
+`FAIL <ticket> <what you tried> | <why it failed> | <commit sha or log path>`
+
 ## Reporting
 
 Report at these points, one line each: `working <what>`, `blocked <why, what you need>`,
