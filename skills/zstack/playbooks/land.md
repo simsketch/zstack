@@ -23,8 +23,13 @@ with its evidence packet and, where the trust ladder allows, merges it pinned to
 5. Write the PR body from `<zstack dir>/templates/pr-body.md`: what changed, the route line, principles and what each
    changed, evidence (check names, test counts and the head sha, then Implemented, Deployed and Verified on
    separate lines), the `## How to test` block, drive-bys and follow-ups.
-6. Open the PR: `gh pr create --base <base> --body-file <file>`. Add `--label hold` when the class is
-   `solo`.
+6. Read the class's effective level from the `effective` column of
+   `<zstack dir>/scripts/trust.sh --class <class>`, then open the PR:
+   `gh pr create --base <base> --body-file <file>`. Add `--label hold` when the class is `solo`. At L0
+   (the solo default), open it with `--draft --label hold` and stop here: never mark it ready, remove
+   `hold` or merge. Report the draft to the human, who takes it over. If `gh` refuses the label because
+   the repo has none, report it and ask the human to create it (`gh label create hold`); never drop the
+   label to get the PR open.
 7. Before any merge, confirm the head has not moved: compare `gh pr view <n> --json headRefOid` with the
    recorded sha. If it moved, return to step 2.
 8. Verify the records: `<zstack dir>/scripts/zcheck.sh --verify <sha> <check> [<check>...]` exits 0. Rerun
@@ -37,8 +42,8 @@ with its evidence packet and, where the trust ladder allows, merges it pinned to
     the coordinating session merges, one PR at a time):
     `gh pr merge <n> --match-head-commit <sha>` with the repo's merge method flag. With zstack-fleet
     installed (its folder is `~/.agents/skills/zstack-fleet` or `~/.claude/skills/zstack-fleet`), run
-    `<fleet dir>/scripts/release.sh is-frozen` right before the merge; exit 0 means a freeze is on, so
-    wait and report it instead of merging.
+    `<fleet dir>/scripts/release.sh is-frozen` right before the merge. Exit 0 means a freeze is on and
+    exit 1 means clear; on exit 0 or any other exit, wait and report it instead of merging.
 11. Log the merge:
     `python3 <zstack dir>/scripts/ledger.py add --pr <n> --sha <merge sha> --class <class> --checks <a,b>`.
 12. Update the PR (or ticket) with the merge sha as Implemented. Deployed and Verified stay open until
@@ -48,7 +53,8 @@ with its evidence packet and, where the trust ladder allows, merges it pinned to
 
 The PR body carries the full evidence packet for the current head sha, `<zstack dir>/scripts/zcheck.sh --verify` passed at
 that sha, and either the PR merged through `gh pr merge --match-head-commit <sha>` with a ledger entry, or it
-is reported to the human as ready because the trust gate kept the merge with them.
+is reported to the human as ready because the trust gate kept the merge with them, or (at L0) it is open
+as a draft labelled `hold` and handed to the human.
 
 ## Principles
 

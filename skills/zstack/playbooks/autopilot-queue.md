@@ -13,12 +13,12 @@ queue across repos or accounts goes to a fleet wave instead.
 ## Steps
 
 1. Print the trust table with `<zstack dir>/scripts/trust.sh` and write down, per class, whether zStack may merge (L2 or
-   higher) or only open PRs.
+   higher), only open PRs (L1), or only open a draft labelled `hold` for the human to take over (L0).
 2. For each ticket, confirm nobody owns it: search open PRs, remote branches and local worktrees for the
    ticket key. Any hit means it is owned; skip it and note why.
 3. Predict the files each ticket will touch and classify them (`<zstack dir>/scripts/classify.sh --files <list>`).
    Tickets whose predicted files overlap go in the same lane or run in sequence. Solo-class tickets run
-   alone and open with `hold`.
+   alone and open with `hold`; at L0 (the solo default) as a draft that the human takes over.
 4. Give each ticket one owner: spawn a background subagent in its own worktree with a brief from
    `<zstack dir>/templates/worker-brief.md`, naming the playbook that fits the ticket (`feature`, `debug`, `refactor`
    and so on) and the principles in force. Hot files (lockfiles, CI workflows, migration indexes, route

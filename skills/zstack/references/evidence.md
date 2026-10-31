@@ -26,7 +26,8 @@ passing at a named commit, and "passing" needs a recorded check at the head sha.
    you verified, so a late push cannot slip in.
 3. **One merge at a time per repo.** Finish one merge, including the post-merge check on main, before
    starting the next.
-4. **Hold for sensitive classes.** Solo-class PRs open with a `hold` label. A push after review needs a
+4. **Hold for sensitive classes.** Solo-class PRs open with a `hold` label, as drafts while the class is
+   at L0 (the default for solo). A push after review needs a
    delta review of just that push before the hold comes off. Workers never remove `hold`; the human or
    the reviewer of record does.
 
@@ -53,8 +54,8 @@ Per repo and per class, the ladder sets how much zStack may do without the human
 
 | Level | zStack may | Earned by |
 |---|---|---|
-| L0 propose | write the plan and the diff, open no PR | starting point for solo classes |
-| L1 open | open PRs with the evidence packet; the human merges | starting point for every other class |
+| L0 draft only | open only a draft PR labelled `hold`; never mark it ready, remove `hold` or merge; the human takes it over | starting point for solo classes |
+| L1 open | open ready PRs with the evidence packet; the human merges | starting point for every other class |
 | L2 merge on evidence | merge its own PRs that pass all four gates, one at a time | the human sets it for a class after a track record |
 | L3 batch | assemble and merge area batches | L2 for the class, plus zstack-fleet installed |
 
@@ -65,6 +66,8 @@ Rules:
 - A revert in a class drops it one level automatically, until the human restores it by updating
   `trust.<class>.since`.
 - Solo classes never go above L1. L3 needs zstack-fleet; without it the effective level caps at L2.
+- Read a class's effective level from the `effective` column of `<zstack dir>/scripts/trust.sh --class <class>`.
+  At L0, `land` opens the PR as a draft with `hold` and stops there.
 
 ## Track record
 
@@ -75,4 +78,5 @@ Rules:
   fresh clone or another machine.
 - `<zstack dir>/scripts/trust.sh` prints per class: merges, revert rate, bug rate, configured, effective and suggested
   level. The suggestion is advice only. `<zstack dir>/scripts/trust.sh --gate <class>` exits 0 when the effective
-  level is L2 or higher; run it before any merge you make yourself.
+  level is L2 or higher; run it before any merge you make yourself. `--gate <class> --level L3` exits 0
+  only at L3, which every class in a batch needs.

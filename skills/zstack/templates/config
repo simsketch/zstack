@@ -1,7 +1,12 @@
 # zstack per-repo config. Copy to .git/zstack/config and edit by hand.
 # Format: key=value, one per line. Lines starting with # are comments.
 
-# Trust ladder per PR class: L0 propose, L1 open PRs, L2 merge on evidence, L3 batch (needs zstack-fleet).
+# Trust ladder per PR class:
+#   L0 draft only: the agent opens a DRAFT PR labelled hold and stops; it never marks it ready, removes
+#      hold or merges, and the human takes the PR over.
+#   L1 open: the agent opens ready PRs with the evidence packet; the human merges.
+#   L2 merge on evidence: the agent merges its own PRs that pass every gate, one at a time.
+#   L3 batch: the agent merges area batches (needs zstack-fleet and L3 for every class in the batch).
 # Only the human raises a level. solo is capped at L1 whatever is written here.
 trust.docs=L1
 trust.tests=L1
@@ -17,6 +22,9 @@ trust.solo=L0
 sweep_repos=
 
 # Command used to send the human one short message when the decision page changes. Empty means none.
+# This per-repo key is what core playbooks use. When it is empty and zstack-fleet is installed, they fall
+# back to fleet's notify.sh, which reads notify_cmd from ~/.config/zstack/config (the machine key fleet's
+# own scripts always use). With neither set, the message goes in the session reply.
 notify_cmd=
 
 # Base branch PRs target.

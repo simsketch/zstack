@@ -43,9 +43,9 @@ Work through these seven steps in order, every time.
 2. **Pick a playbook** from the catalog below. Overrides come before narrow matches: work the human wants
    to walk away from, or that spans days, goes to `autopilot-queue` (or a fleet wave when zstack-fleet is
    installed); "which approach is better?" goes to `prototype`. When the human is also busy, human-busy
-   mode wraps the work and the work itself routes by these rules (a queue of tickets: `autopilot-queue`). When nothing fits, write a one-off
-   playbook in the same shape as the shipped ones and save it under `.git/zstack/playbooks/<name>.md` so
-   the next session can reuse it.
+   mode wraps the work and the work itself routes by these rules (a queue of tickets:
+   `autopilot-queue`). When nothing fits, write a one-off playbook in the same shape as the shipped ones
+   and save it under `.git/zstack/playbooks/<name>.md` so the next session can reuse it.
 3. **Pick an execution shape** from the signals in the next section.
 4. **State the route in one line**, in exactly this format:
 
@@ -79,7 +79,8 @@ left after all six is the one you run.
 2. **Predicted file overlap.** Pieces that are likely to edit the same files join one lane or run in
    sequence.
 3. **Solo classes.** Migrations, auth and security, infra and CI workflows, and payments each run as
-   their own lane, never batched with other work, and their PRs open with a `hold` label.
+   their own lane, never batched with other work, and their PRs open with a `hold` label. At L0 (the
+   solo default) the PR opens as a draft and the human takes it over.
 4. **Harness capability.** Look up what this harness can do in `references/harness-capabilities.md`.
    With no background subagents, lanes run in sequence, or as headless runs where the harness has a
    headless mode.
@@ -92,8 +93,7 @@ each batch to report before starting the next. A slow start spreads the load on 
 repo, and a bad brief shows up after three workers instead of six.
 
 When you choose a smaller shape than the work wanted, name the signal that capped it in one line, for
-example: "wanted a lane;
-this harness has no background subagents, so the three pieces run in sequence."
+example: "wanted a lane; this harness has no background subagents, so the three pieces run in sequence."
 
 **Fleet hand-off.** With zstack-fleet installed, read its SKILL.md before choosing fleet wave; without it
 cap at lane and say so.
@@ -197,14 +197,14 @@ Four gates before a merge:
    Zero tests fails.
 2. The merge is pinned to the verified head (`gh pr merge --match-head-commit <sha>`).
 3. One merge at a time per repo.
-4. Sensitive classes open with `hold`; a push after review needs a delta review before the hold comes
-   off.
+4. Sensitive classes open with `hold` (as drafts at L0); a push after review needs a delta review
+   before the hold comes off.
 
 A PR's class comes from `<zstack dir>/scripts/classify.sh` (riskiest file wins, unmatched files count as `feature`).
 You may raise a class by hand and never lower it. How much you may do alone is set per class by the
-trust ladder: L0 propose, L1 open, L2 merge on evidence, L3 batch (fleet only). Check it with
-`<zstack dir>/scripts/trust.sh --gate <class>`, and record each merge with `<zstack dir>/scripts/ledger.py add`. Only the human
-raises a level. The full ladder and class rules are in `references/evidence.md`; every state file is
+trust ladder: L0 draft only (a draft PR labelled `hold` that the human takes over), L1 open, L2 merge
+on evidence, L3 batch (fleet only). Check it with `<zstack dir>/scripts/trust.sh --gate <class>`, and
+record each merge with `<zstack dir>/scripts/ledger.py add`. Only the human raises a level. The full ladder and class rules are in `references/evidence.md`; every state file is
 listed in `references/state.md`.
 
 ## Drive-by fixes
