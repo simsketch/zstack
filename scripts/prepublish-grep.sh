@@ -3,7 +3,9 @@
 #
 # Scans files for things that must never ship in a public tree: secrets,
 # absolute home paths, private email addresses and private terms (client or
-# employer names) kept in a list outside the tree.
+# employer names) kept in a list outside the tree. Addresses at reserved
+# domains (*.test, *.example, *.invalid, *.localhost, example.com/.net/.org)
+# and SSH remotes (git@host:owner/repo.git) are not counted as emails.
 #
 # Private terms come from the first of: --terms <file>, $ZSTACK_PRIVATE_TERMS_FILE,
 # $ZSTACK_PRIVATE_TERMS (newline-separated list, for a CI secret).
@@ -58,7 +60,13 @@ BUILTIN = [
     ("home-path", re.compile(r"/home/[a-z]+/")),
 ]
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})")
-ALLOWED_DOMAINS = ("example.com", "example.org", "users.noreply.github.com")
+# Reserved for documentation and tests (RFC 2606, RFC 6761), plus GitHub noreply addresses.
+ALLOWED_DOMAINS = ("example.com", "example.net", "example.org", "users.noreply.github.com")
+ALLOWED_TLDS = ("test", "example", "invalid", "localhost")
+# An SSH git remote, git@<host>:<owner>/<repo>[.git], is a URL rather than an address.
+SSH_REMOTE = re.compile(
+    r"(?<![A-Za-z0-9._%+-])git@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+"
+    r":[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*(?![A-Za-z0-9_.@-])")
 WORD = r"(?<![A-Za-z0-9_])(?:%s)(?![A-Za-z0-9_])"
 
 terms = []
@@ -82,6 +90,8 @@ if not terms:
 
 def allowed(domain):
     d = domain.lower()
+    if d.rsplit(".", 1)[-1] in ALLOWED_TLDS:
+        return True
     return any(d == a or d.endswith("." + a) for a in ALLOWED_DOMAINS)
 
 def files(paths):
@@ -107,7 +117,7 @@ for path in files(sys.argv[1:]):
     shown = path[2:] if path.startswith("./") else path
     for no, line in enumerate(text.splitlines(), 1):
         rules = [name for name, rx in BUILTIN if rx.search(line)]
-        if any(not allowed(m.group(1)) for m in EMAIL.finditer(line)):
+        if any(not allowed(m.group(1)) for m in EMAIL.finditer(SSH_REMOTE.sub(" ", line))):
             rules.append("email")
         if any(rx.search(line) for rx in terms):
             rules.append("private-term")

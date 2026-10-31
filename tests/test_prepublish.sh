@@ -31,14 +31,42 @@ d="$(fixture "path $home")"
 run_grep "$d"
 assert_eq 1 "$RC" "absolute home path fails"
 
-d="$(fixture "mail a@""corp.test now")"
+real="someone@""gmail.com"
+d="$(fixture "mail $real now")"
 run_grep "$d"
 assert_eq 1 "$RC" "private email fails"
-assert_not_contains "$OUT" "a@""corp.test" "email is masked in output"
+assert_not_contains "$OUT" "$real" "email is masked in output"
 
 d="$(fixture "contact dev@example.com or 1+me@users.noreply.github.com")"
 run_grep "$d"
 assert_eq 0 "$RC" "allowlisted emails pass"
+
+d="$(fixture "dev@acme.test bob@home.example x@y.invalid a@b.localhost c@mail.example.net")"
+run_grep "$d"
+assert_eq 0 "$RC" "reserved test and documentation domains pass"
+
+d="$(fixture "dev@""acme.testing.com")"
+run_grep "$d"
+assert_eq 1 "$RC" "a real domain that only contains a reserved word fails"
+
+d="$(fixture "git remote add origin git@github.com:other-org/tool.git")"
+run_grep "$d"
+assert_eq 0 "$RC" "SSH git remote is not an email"
+
+d="$(fixture "ping git@""gmail.com today")"
+run_grep "$d"
+assert_eq 1 "$RC" "a plain git@ address at a real domain still fails"
+
+d="$(fixture "origin git@github.com:org/repo.git and $real")"
+run_grep "$d"
+assert_eq 1 "$RC" "a real address next to an SSH remote still fails"
+
+rterms="$(zt_tmpdir)/terms.txt"
+printf 'acme\n' > "$rterms"
+d="$(fixture "dev@acme.test")"
+run_grep "$d" --terms "$rterms"
+assert_eq 1 "$RC" "a private term inside a reserved-domain address still fails"
+assert_contains "$OUT" "private-term" "reserved-domain address still gets the term check"
 
 d="$(fixture "clean text only")"
 mkdir -p "$d/.git"; printf 'aws = %s\n' "$key" > "$d/.git/config"
