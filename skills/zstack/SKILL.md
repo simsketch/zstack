@@ -12,6 +12,10 @@ metadata:
 A goal goes in. A playbook, an execution shape and a short list of principles come out, and every
 decision you make afterwards names the principle behind it.
 
+`<zstack dir>` is the folder that holds this SKILL.md. Every `scripts/` and `templates/` path in this
+skill, its playbooks and its briefs is relative to it, and a subagent brief passes the absolute
+`<zstack dir>` (the `{{ZSTACK_DIR}}` slot in the worker-brief template).
+
 The repo's own rules (CLAUDE.md, AGENTS.md, CONTRIBUTING and the like) outrank this skill. When they
 conflict, follow the repo and say which rule won.
 
@@ -184,17 +188,17 @@ Never write "shipped" or "live" without the deployed evidence.
 Four gates before a merge:
 
 1. A check counts only when recorded on a clean tree at the PR head commit:
-   `scripts/zcheck.sh --name <n> -- <cmd>`, confirmed with `scripts/zcheck.sh --verify <sha> <name>...`.
+   `<zstack dir>/scripts/zcheck.sh --name <n> -- <cmd>`, confirmed with `<zstack dir>/scripts/zcheck.sh --verify <sha> <name>...`.
    Zero tests fails.
 2. The merge is pinned to the verified head (`gh pr merge --match-head-commit <sha>`).
 3. One merge at a time per repo.
 4. Sensitive classes open with `hold`; a push after review needs a delta review before the hold comes
    off.
 
-A PR's class comes from `scripts/classify.sh` (riskiest file wins, unmatched files count as `feature`).
+A PR's class comes from `<zstack dir>/scripts/classify.sh` (riskiest file wins, unmatched files count as `feature`).
 You may raise a class by hand and never lower it. How much you may do alone is set per class by the
 trust ladder: L0 propose, L1 open, L2 merge on evidence, L3 batch (fleet only). Check it with
-`scripts/trust.sh --gate <class>`, and record each merge with `scripts/ledger.py add`. Only the human
+`<zstack dir>/scripts/trust.sh --gate <class>`, and record each merge with `<zstack dir>/scripts/ledger.py add`. Only the human
 raises a level. The full ladder and class rules are in `references/evidence.md`; every state file is
 listed in `references/state.md`.
 
@@ -210,14 +214,14 @@ becomes a ticket listed under `## Follow-ups` with its evidence. Full rule: `ref
 
 Enter the `human-busy` playbook when the human says they are occupied ("I'm testing for the next two
 hours", "in meetings until 3"), or on your own after two questions have gone unanswered for 30 minutes.
-Questions then go to one decision page (`.git/zstack/decisions.md`, from `templates/decision-page.md`),
+Questions then go to one decision page (`.git/zstack/decisions.md`, from `<zstack dir>/templates/decision-page.md`),
 the human gets one short message when the page changes, and work continues on whatever needs no answer.
 Safe, reversible defaults proceed flagged `revisit`; anything on the `ask-with-options` list waits.
 
 ## Briefing subagents
 
 Every brief you hand a subagent, worker or headless run starts with these lines, in this order (the
-full brief shape is `templates/worker-brief.md`):
+full brief shape is `<zstack dir>/templates/worker-brief.md`):
 
 1. "Read the zstack router first" and where it lives.
 2. The playbook it is running, and the route line.
@@ -231,13 +235,13 @@ cannot ask stops and reports the missing lines.
 
 Scripts (bash 3.2 and Python 3 standard library, state under `.git/zstack/`):
 
-- `scripts/zcheck.sh`: record a check at the head commit, `--verify` before merge, `--list` to see them
-- `scripts/classify.sh`: compute a PR's class from its files (`--pr <n>`, `--base <ref>`, `--files <file>`)
-- `scripts/ledger.py`: record merges, reverts and bugs; `stats`, `export`, `import`
-- `scripts/trust.sh`: per-class track record and effective trust level; `--gate <class>`
-- `scripts/checklist.py`: `generate` the manual-test checklist and `record` results back to PRs
+- `<zstack dir>/scripts/zcheck.sh`: record a check at the head commit, `--verify` before merge, `--list` to see them
+- `<zstack dir>/scripts/classify.sh`: compute a PR's class from its files (`--pr <n>`, `--base <ref>`, `--files <file>`)
+- `<zstack dir>/scripts/ledger.py`: record merges, reverts and bugs; `stats`, `export`, `import`
+- `<zstack dir>/scripts/trust.sh`: per-class track record and effective trust level; `--gate <class>`
+- `<zstack dir>/scripts/checklist.py`: `generate` the manual-test checklist and `record` results back to PRs
 
-Templates: `templates/pr-body.md`, `decision-page.md`, `sweep-report.md`, `handoff.md`,
+Templates: `<zstack dir>/templates/pr-body.md`, `decision-page.md`, `sweep-report.md`, `handoff.md`,
 `worker-brief.md`, `classes.conf`, `config`, `smoke.md`.
 
 ## Closing every task

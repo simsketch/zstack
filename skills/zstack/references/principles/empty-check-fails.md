@@ -19,5 +19,5 @@ way to tell "all tests passed" from "no tests ran".
 
 ## Script the check
 
-`scripts/zcheck.sh -- <cmd>` exits 3 and records a failure when the parsed count is zero (or below
+`<zstack dir>/scripts/zcheck.sh -- <cmd>` exits 3 and records a failure when the parsed count is zero (or below
 `--min-tests`). Use `--no-count` for lint and typecheck.

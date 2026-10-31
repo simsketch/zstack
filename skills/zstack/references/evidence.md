@@ -17,11 +17,11 @@ passing at a named commit, and "passing" needs a recorded check at the head sha.
 
 1. **Checks recorded at the head commit.** A check counts only when it ran on a clean tree (no
    uncommitted or untracked files) at the PR head. Record each with
-   `scripts/zcheck.sh --name <name> -- <cmd...>`; it writes `.git/zstack/checks/<sha>/<name>` with the
+   `<zstack dir>/scripts/zcheck.sh --name <name> -- <cmd...>`; it writes `.git/zstack/checks/<sha>/<name>` with the
    exit code, test count, clean flag, time and command. Zero tests fails (exit 3); use `--no-count` for
    lint and typecheck and `--min-tests <n>` to require more. Before merging, run
-   `scripts/zcheck.sh --verify <sha> <name>...`, which exits 0 only when every named check exists, passed,
-   was clean and did not run zero tests. `scripts/zcheck.sh --list [<sha>]` shows what is recorded.
+   `<zstack dir>/scripts/zcheck.sh --verify <sha> <name>...`, which exits 0 only when every named check exists, passed,
+   was clean and did not run zero tests. `<zstack dir>/scripts/zcheck.sh --list [<sha>]` shows what is recorded.
 2. **Merge pinned to the verified head.** `gh pr merge <n> --match-head-commit <sha>`, with the same sha
    you verified, so a late push cannot slip in.
 3. **One merge at a time per repo.** Finish one merge, including the post-merge check on main, before
@@ -35,8 +35,8 @@ passing at a named commit, and "passing" needs a recorded check at the head sha.
 Classes, from least to most risky: `docs` < `tests` < `small-ui` < `feature` < `solo`.
 
 - The human decides classes through rules in `.git/zstack/classes.conf`, one per line:
-  `<glob> -> <class>` or `label:<name> -> <class>`. Start it with `scripts/classify.sh --init`.
-- `scripts/classify.sh` computes a PR's class from its changed files (`--pr <n>`, `--base <ref>` or
+  `<glob> -> <class>` or `label:<name> -> <class>`. Start it with `<zstack dir>/scripts/classify.sh --init`.
+- `<zstack dir>/scripts/classify.sh` computes a PR's class from its changed files (`--pr <n>`, `--base <ref>` or
   `--files <file>`). The riskiest class of any file wins, and a file no rule matches counts as
   `feature`.
 - `--claimed <class>` records the class you think it is; the result is never lower than the computed
@@ -68,11 +68,11 @@ Rules:
 
 ## Track record
 
-- After each merge, record it: `scripts/ledger.py add --pr <n> --sha <sha> --class <class> --checks a,b`.
+- After each merge, record it: `<zstack dir>/scripts/ledger.py add --pr <n> --sha <sha> --class <class> --checks a,b`.
 - When a merge is later reverted or traced as a bug's cause:
-  `scripts/ledger.py flag --sha <sha> --reverted` or `--bug <ref>`.
-- `scripts/ledger.py stats [--json]` summarizes; `export <file>` and `import <file>` move the record to a
+  `<zstack dir>/scripts/ledger.py flag --sha <sha> --reverted` or `--bug <ref>`.
+- `<zstack dir>/scripts/ledger.py stats [--json]` summarizes; `export <file>` and `import <file>` move the record to a
   fresh clone or another machine.
-- `scripts/trust.sh` prints per class: merges, revert rate, bug rate, configured, effective and suggested
-  level. The suggestion is advice only. `scripts/trust.sh --gate <class>` exits 0 when the effective
+- `<zstack dir>/scripts/trust.sh` prints per class: merges, revert rate, bug rate, configured, effective and suggested
+  level. The suggestion is advice only. `<zstack dir>/scripts/trust.sh --gate <class>` exits 0 when the effective
   level is L2 or higher; run it before any merge you make yourself.
