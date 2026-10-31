@@ -6,11 +6,15 @@
   ledger.py stats [--json]
   ledger.py export <file>
   ledger.py import <file>          (dedupes by sha + event)
-  ledger.py trust [--class <c>] [--gate <c>]   (what trust.sh runs)
+  ledger.py trust [--class <c>] [--gate <c> [--level L2|L3]]   (what trust.sh runs)
 
 File: $STATE/ledger.jsonl, one JSON object per line with `ts` and `event`
 (merge | revert | bug). State dir: $ZSTACK_STATE_DIR, else
 <git common dir>/zstack.
+
+Levels: L0 draft only (the agent opens a draft PR labelled hold and the human
+takes it over), L1 open (the human merges), L2 merge one PR on evidence
+(trust --gate <c>), L3 merge a batch (trust --gate <c> --level L3).
 
 Suggested level (advice only): L2 when a class has >= 20 merges, a revert
 rate <= 5% and a post-merge bug rate <= 5%; L1 otherwise; solo never above L1.
@@ -300,10 +304,16 @@ def cmd_trust(a):
     for r in rows:
         configured, eff = effective(r, conf, fleet)
         table.append((r, configured, eff))
+    if a.level and not a.gate:
+        raise Fail("--level goes with --gate <class>")
     if a.gate:
+        need = a.level or "L2"
+        if need not in ("L2", "L3"):
+            raise Fail("--level takes L2 (merge one PR) or L3 (merge a batch)")
         r, configured, eff = next(t for t in table if t[0]["class"] == a.gate)
-        ok = LEVELS.index(eff) >= 2
-        print("%s: effective %s (%s)" % (a.gate, eff, "may merge on evidence" if ok else "below L2; the human merges"))
+        ok = LEVELS.index(eff) >= LEVELS.index(need)
+        what = "may merge on evidence" if need == "L2" else "may merge in a batch"
+        print("%s: effective %s (%s)" % (a.gate, eff, what if ok else "below %s; the human merges" % need))
         return 0 if ok else 1
     print("%-9s %7s %8s %5s %10s %9s %9s" % ("class", "merges", "revert%", "bug%",
                                               "configured", "effective", "suggested"))
@@ -342,6 +352,7 @@ def build_parser():
     s = sub.add_parser("trust", help="configured, effective and suggested levels")
     s.add_argument("--class", dest="cls")
     s.add_argument("--gate", metavar="CLASS")
+    s.add_argument("--level", metavar="LEVEL", help="the level --gate requires: L2 (default) or L3 for a batch")
     s.set_defaults(func=cmd_trust)
     return p
 

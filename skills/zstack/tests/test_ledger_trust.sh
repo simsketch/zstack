@@ -59,8 +59,19 @@ printf 'trust.solo=L3\ntrust.feature=L3\n' > "$CONF"
 assert_eq L1 "$(col solo 6)" "solo configured L3 is effective L1"
 assert_eq L2 "$(col feature 6)" "L3 without fleet is capped at L2"
 assert_eq L3 "$(ZSTACK_FLEET=1 col feature 6)" "L3 with ZSTACK_FLEET=1 is effective L3"
+bash "$TRUST" --gate feature --level L3 >/dev/null 2>&1; RC=$?
+assert_eq 1 "$RC" "--gate --level L3 fails without fleet (capped at L2)"
+bash "$TRUST" --gate feature >/dev/null 2>&1; RC=$?
+assert_eq 0 "$RC" "--gate feature passes at effective L2"
 mkdir -p "$HOME/.agents/skills/zstack-fleet"
 assert_eq L3 "$(col feature 6)" "fleet skill folder enables L3"
+bash "$TRUST" --gate feature --level L3 >/dev/null 2>&1; RC=$?
+assert_eq 0 "$RC" "--gate --level L3 passes at effective L3"
+bash "$TRUST" --gate docs --level L3 >/dev/null 2>&1; RC=$?
+assert_eq 1 "$RC" "--gate --level L3 fails for a class at L1"
+OUT="$(bash "$TRUST" --gate docs --level L1 2>&1)"; RC=$?
+assert_eq 1 "$RC" "--level only takes L2 or L3"
+assert_not_contains "$OUT" "Traceback" "a bad --level prints no traceback"
 for k in $(seq 1 25); do python3 "$LEDGER" add --pr "$((100 + k))" --sha "5010$(printf '%036d' "$k")" --class solo >/dev/null; done
 assert_eq L1 "$(col solo 7)" "solo suggestion stays L1 with a clean record"
 
