@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${PLUGIN_ROOT}/hooks/session-start.sh\" codex"
+            "command": "sh -c 'r=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}\"; if [ -n \"$r\" ] && [ -x \"${r}/hooks/session-start.sh\" ]; then \"${r}/hooks/session-start.sh\" codex; fi; exit 0'"
           }
         ]
       }

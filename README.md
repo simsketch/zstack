@@ -139,13 +139,13 @@ agent may do alone:
 
 | Level | The agent may |
 |---|---|
-| L0 propose | write the plan and the diff, open no PR |
-| L1 open | open PRs with the evidence packet; you merge |
+| L0 draft only | open only a draft PR labelled `hold`; never mark it ready, remove `hold` or merge; you take it over |
+| L1 open | open ready PRs with the evidence packet; you merge |
 | L2 merge on evidence | merge its own PRs that pass all four gates, one at a time |
 | L3 batch | assemble and merge batches (zstack-fleet only) |
 
 Only you raise a level, in `.git/zstack/config`. A revert in a class drops it one level until you
-restore it. Solo classes stay at L1 or below. `trust.sh` shows each class's track record from the
+restore it. Solo classes start at L0 and stay at L1 or below. `trust.sh` shows each class's track record from the
 merge ledger and suggests a level; the suggestion is advice.
 
 ## Install
@@ -163,10 +163,19 @@ git clone https://github.com/<owner>/zstack.git
 updates every harness, then runs the Agent Skills validator when one is available. It refuses to
 replace a real folder of the same name. `./install.sh --uninstall` removes only its own links.
 
-**Claude Code:** `/plugin marketplace add <owner>/zstack`, then `/plugin install zstack`, or use the
-installer. Invoke with `/zstack <goal>` or by stating the goal.
+**Claude Code:** in one step (Claude Code 2.1.275 or later):
 
-**Codex CLI:** `codex plugin marketplace add <owner>/zstack`, or use the installer.
+```
+/plugin install zstack --marketplace <owner>/zstack
+```
+
+or in two: `/plugin marketplace add <owner>/zstack`, then `/plugin install zstack@zstack`. From a shell,
+`claude plugin install zstack --marketplace <owner>/zstack` does the same. A plugin skill is namespaced,
+so on this route invoke it with `/zstack:zstack <goal>` (or state the goal); with the installer it is
+`/zstack <goal>`.
+
+**Codex CLI:** `codex plugin marketplace add <owner>/zstack`, then `codex plugin add zstack@zstack`, or
+use the installer. The plugin skill is listed as `zstack:zstack`; state the goal or mention the skill.
 
 **Cursor:** load the repo's root `plugin.json`, or rely on the `~/.agents/skills/` symlink.
 
@@ -178,8 +187,11 @@ installer. Invoke with `/zstack <goal>` or by stating the goal.
 **Pi:** `pi install git:https://github.com/<owner>/zstack`, or use the symlink.
 
 The Claude Code and Codex plugin installs also add a session-start hook that prints a two-line routing
-hint; it reads no files and takes no action. The Gemini CLI extension loads the same hint from
-`GEMINI.md`.
+hint; it reads no files and takes no action. The Claude Code hook was seen running on a clean profile.
+The Codex hook is not live-tested: Codex asks you to review and trust a plugin's hooks before they run,
+and the hook command exits quietly when Codex gives it no plugin root. The Gemini CLI extension loads
+the same hint from `GEMINI.md`. Install commands and their recorded output are in
+`skills/zstack/example/results/plugin-install.md`.
 
 ## Optional repo setup
 
@@ -190,7 +202,10 @@ None of this is required; each piece makes zStack more useful in a repo you work
 - **PR template:** copy `skills/zstack/templates/pr-body.md` to `.github/pull_request_template.md`.
 - **Smoke list:** copy `skills/zstack/templates/smoke.md` to `.git/zstack/smoke.md` and edit it.
 - **Trust and config:** copy `skills/zstack/templates/config` to `.git/zstack/config` (trust levels,
-  sibling repos to sweep, a notify command, the base branch).
+  sibling repos to sweep, a notify command, the base branch). Its `notify_cmd` is per repo; with
+  zstack-fleet installed, an empty one falls back to fleet's machine-wide `~/.config/zstack/config`.
+- **Labels:** `gh pr create --label` refuses a label the repo lacks, so create the two zStack uses once:
+  `gh label create hold` and `gh label create manual-verify`.
 - **PR classes:** `skills/zstack/scripts/classify.sh --init` writes `.git/zstack/classes.conf` with
   safe defaults you can extend.
 
@@ -230,8 +245,9 @@ Per repo, everything lives in `.git/zstack/` (the git common dir), so every work
 files and none of them shows in `git status`: config, PR class rules, recorded checks, the merge
 ledger, sweep reports, the decision page, checklists, handoffs, one-off playbooks, and `board.md`,
 where a worker whose approach failed leaves a one-line `FAIL` entry so others skip that dead end.
-Nothing there holds secrets and nothing is pushed. Core zStack writes nothing outside the repo. The
-full list is in `skills/zstack/references/state.md`.
+Nothing there holds secrets and nothing is pushed. While it runs, core zStack writes nothing outside
+the repo; `install.sh` adds only its symlinks under `~/.agents/skills/` and `~/.claude/skills/`. The full
+list is in `skills/zstack/references/state.md`.
 
 ## Harnesses
 
@@ -277,7 +293,8 @@ latest run: whether the skill fired, the route line, and whether the todo list m
 zstack-fleet is a members-only add-on for the 500x Engineer Skool community. It adds the pipeline layer
 for many projects and accounts: an accounts doctor, a CI cost budget and runner lint, a spot-reclaim
 retry policy, a drift metric with a WIP cap, batch planning and release trains. It needs this core skill
-installed; core never needs it.
+installed; core never needs it. Members get it from the Premium section of the 500x Engineer Skool
+community.
 
 ## Credits
 
@@ -291,7 +308,7 @@ zStack's wording and code are original. It is inspired by these projects:
   claims and staggered lane start come from reading it.
 - **David Ondrej's skills:** zStack is inspired in part by David Ondrej's agent-orchestration work
   (github.com/davidondrej/skills, MIT).
-- **pstack-claude** by Michael Denyer (MIT): one skills tree with thin per-harness manifests, a
+- **pstack-claude**, a port by Michael Denyer (MIT, license copyright Lauren Tan): one skills tree with thin per-harness manifests, a
   session-start routing hook, and per-harness tool mapping.
 - Standards referenced: [Agent Skills](https://agentskills.io) and [AGENTS.md](https://agents.md).
 
