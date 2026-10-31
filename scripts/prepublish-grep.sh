@@ -12,7 +12,8 @@
 # starting with 'case:' is matched case-sensitively (still whole-word).
 #
 # Exit 0 when clean, 1 with one 'file:line: <rule>' line per hit (the matched
-# text is never printed), 2 on usage errors. Skips .git/ and binary files.
+# text is never printed), 2 on usage errors. Skips .git/, the .git file a
+# worktree has, and binary files.
 set -u
 
 usage() { echo "usage: prepublish-grep.sh [--terms <file>] [path...]" >&2; exit 2; }
@@ -90,7 +91,7 @@ def files(paths):
             continue
         for root, dirs, names in os.walk(p):
             dirs[:] = sorted(d for d in dirs if d != ".git")
-            for n in sorted(names):
+            for n in sorted(n for n in names if n != ".git"):
                 yield os.path.join(root, n)
 
 hits = 0
