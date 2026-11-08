@@ -14,7 +14,8 @@ MIT licensed. zStack is unrelated to the 500x `ship-stack` skill, which scaffold
 
 On a non-trivial goal (or `/zstack <goal>`), the agent:
 
-1. restates the goal and what done means;
+1. restates the goal and what done means, and triages it clear or open (open work gets a `spec-pass`
+   first);
 2. picks a playbook from the catalog;
 3. picks an execution shape from a fixed list of signals;
 4. states the route in one line;
@@ -34,7 +35,7 @@ skip zStack.
 
 ## Playbooks
 
-Sixteen playbooks, each in `skills/zstack/playbooks/` with the same parts: use when, inputs, numbered
+Seventeen playbooks, each in `skills/zstack/playbooks/` with the same parts: use when, inputs, numbered
 steps, the gate that ends it, the principles it cites and the shape it prefers.
 
 | Playbook | Use when |
@@ -46,6 +47,7 @@ steps, the gate that ends it, the principles it cites and the shape it prefers.
 | `feature` | new behavior |
 | `refactor` | a structure change that must keep behavior |
 | `prototype` | "which approach?" |
+| `spec-pass` | an open ticket: no testable done, or a product choice left to the builder |
 | `review` | review a PR, branch or diff |
 | `babysit-pr` | drive an open PR to merge-ready |
 | `land` | open or land a PR |
@@ -61,16 +63,17 @@ When nothing fits, the agent writes a one-off playbook in the same shape and sav
 
 ## Principles
 
-Nineteen principles, each a short leaf in `skills/zstack/references/principles/` with the rule, why it
+Twenty-one principles, each a short leaf in `skills/zstack/references/principles/` with the rule, why it
 exists and the checks that show it was followed.
 
 - **Method:** `reproduce-first`, `fix-the-class`, `smallest-reversible-change`, `data-shape-first`,
-  `subtract-first`
+  `subtract-first`, `walk-the-edge-classes`
 - **Evidence:** `evidence-before-the-word`, `three-words`, `empty-check-fails`,
   `numbers-from-tested-queries`
 - **Parallel work:** `one-owner-per-file`, `rebase-once-late`, `count-the-living`
 - **Safety:** `report-the-guard`, `secrets-stay-in-process`, `stop-by-pid`
-- **Human:** `ask-with-options`, `leave-it-better-separately`, `spend-attention-carefully`
+- **Human:** `ask-with-options`, `leave-it-better-separately`, `spend-attention-carefully`,
+  `list-your-assumptions`
 - **Meta:** `name-what-changed`
 
 ## Execution shapes
@@ -91,7 +94,7 @@ workers at a time, at most three in any two minutes.
 
 Every PR body (template: `skills/zstack/templates/pr-body.md`) carries the route, the principles and
 what each changed, the PR class, the checks recorded at the head commit, a "How to test" block,
-drive-bys and follow-ups. Status is reported with three separate words:
+the author's assumptions, answers to the edge-case checklist, drive-bys and follow-ups. Status is reported with three separate words:
 
 - **implemented:** merged, with the merge sha
 - **deployed:** running in a named environment, proven by the serving artifact containing the commit
@@ -101,6 +104,25 @@ drive-bys and follow-ups. Status is reported with three separate words:
 apply: checks recorded on a clean tree at the head commit (a check that ran zero tests fails), the
 merge pinned to the verified head, one merge at a time per repo, and a `hold` label on sensitive
 classes.
+
+## Assumptions, edge cases and spec passes
+
+Agents fill gaps in a ticket with confident guesses, and most defects that get past CI are edge cases
+nobody asked about. Three habits move both problems ahead of the merge:
+
+- **Assumptions.** Every PR lists, under `## Assumptions`, each product or behavior choice the request
+  left open and the author made, with why. A product call opens the PR with `hold` and goes to you with
+  options. Reviewers report any guess the list leaves out.
+- **Edge-case checklist.** `skills/zstack/references/edge-cases.md` lists ten generic classes: stale or
+  out-of-order writes, partial failure, paths skipped when a flag or channel is off, masking gaps, checks
+  outside the lock, time zone and date boundaries, money math, access by membership, silent page limits,
+  and other clients or old versions. Each PR answers every class as N/A with a reason, covered by a named
+  test, or open with the risk, and reviewers walk the same list. Repo classes go in
+  `.git/zstack/edge-cases.md`, and a bug-class sweep adds new ones there.
+- **Spec pass.** A ticket with no testable done, or one that leaves a product choice to the builder, is
+  open. It gets a cheap read-only `spec-pass` first: questions answered from the code and docs where they
+  can be, proposed answers with options for the rest, and the edge cases decided, written to
+  `.git/zstack/specs/`. In a queue, clear tickets keep running while open ones wait for answers.
 
 ## Bug-class sweeps
 
@@ -308,6 +330,10 @@ zStack's wording and code are original. It is inspired by these projects:
   claims and staggered lane start come from reading it.
 - **David Ondrej's skills:** zStack is inspired in part by David Ondrej's agent-orchestration work
   (github.com/davidondrej/skills, MIT).
+- **"The Agentic Software Factory Is the Wrong Metaphor"** by Rob West, as discussed in Joe Maddalone's
+  video "Senior Engineers Are Using AI Wrong and Software Factories Are Dumb": a ticket is not a blueprint,
+  agents fill gaps with confident guesses, and the edge is verification and edge cases. zStack's
+  assumptions list, edge-case checklist and spec pass come from it.
 - **pstack-claude**, a port by Michael Denyer (MIT, license copyright Lauren Tan): one skills tree with thin per-harness manifests, a
   session-start routing hook, and per-harness tool mapping.
 - Standards referenced: [Agent Skills](https://agentskills.io) and [AGENTS.md](https://agents.md).

@@ -36,6 +36,25 @@ Steps:
 3. <third action>
 Expected: <what the tester should see when it works>
 
+## Assumptions
+
+- <a product or behavior choice the request left open> - <why you chose it> (or "None.")
+
+## Edge cases
+
+From `<zstack dir>/references/edge-cases.md` (and `.git/zstack/edge-cases.md` when the repo has one), one line per class:
+
+1. Stale or out-of-order state: <N/A - why | covered - test file and name | open - why, risk>
+2. Partial failure mid-operation: <...>
+3. Path skipped when a flag or channel is off: <...>
+4. Masking and personal data: <...>
+5. Check outside the lock: <...>
+6. Time zone and date boundaries: <...>
+7. Money and number math: <...>
+8. Access by membership: <...>
+9. Limits, pages and caps: <...>
+10. Other clients and old versions: <...>
+
 ## Drive-bys
 
 - <commit sha> drive-by: <one-line description, file> (or "None")
