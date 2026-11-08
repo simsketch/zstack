@@ -18,6 +18,8 @@ else, which tests use.
 | `checklists/history.jsonl` | `<zstack dir>/scripts/checklist.py generate` | items per checklist, used to spot candidate journey tests |
 | `board.md` | any worker whose approach failed | one `FAIL` line per dead end: what was tried, why it failed, the commit or log that shows it; read before starting a ticket |
 | `handoffs/<branch>.md` | `pause` (from `<zstack dir>/templates/handoff.md`) | where the work stands, what is next, open questions; read by `pickup` |
+| `specs/<ticket>.md` | `spec-pass` | the testable definition of done, answered questions with sources, proposed answers and the edge cases decided for an open ticket |
+| `edge-cases.md` | `bug-class-sweep`, or the human | repo-specific edge-case classes, numbered on from `<zstack dir>/references/edge-cases.md`; every PR answers them too |
 | `playbooks/<name>.md` | the router, step 2 | one-off playbooks written for goals the catalog does not cover |
 
 Nothing in `.git/zstack/` holds secrets, and nothing there is pushed. A fresh clone starts empty; carry the

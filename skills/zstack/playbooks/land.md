@@ -22,7 +22,9 @@ with its evidence packet and, where the trust ladder allows, merges it pinned to
 4. Compute the class: `<zstack dir>/scripts/classify.sh --base <base>`. You may raise it by hand; you never lower it.
 5. Write the PR body from `<zstack dir>/templates/pr-body.md`: what changed, the route line, principles and what each
    changed, evidence (check names, test counts and the head sha, then Implemented, Deployed and Verified on
-   separate lines), the `## How to test` block, drive-bys and follow-ups.
+   separate lines), the `## How to test` block, `## Assumptions`, `## Edge cases`, drive-bys and
+   follow-ups. When an assumption is a product call, add `--label hold` in step 6 and put the question
+   to the human with `ask-with-options`.
 6. Read the class's effective level from the `effective` column of
    `<zstack dir>/scripts/trust.sh --class <class>`, then open the PR:
    `gh pr create --base <base> --body-file <file>`. Add `--label hold` when the class is `solo`. At L0
@@ -53,7 +55,8 @@ with its evidence packet and, where the trust ladder allows, merges it pinned to
 
 The PR body carries the full evidence packet for the current head sha, `<zstack dir>/scripts/zcheck.sh --verify` passed at
 that sha, and either the PR merged through `gh pr merge --match-head-commit <sha>` with a ledger entry, or it
-is reported to the human as ready because the trust gate kept the merge with them, or (at L0) it is open
+is reported to the human as ready because the trust gate kept the merge with them or an assumption waits on
+them, or (at L0) it is open
 as a draft labelled `hold` and handed to the human.
 
 ## Principles

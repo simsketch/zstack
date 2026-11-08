@@ -8,6 +8,7 @@ zstack dir: {{ZSTACK_DIR}} (scripts and templates below live there)
 Ticket: <key or link>
 Goal: <one line>
 Done when: <the gate, in one line>
+Spec: <path to .git/zstack/specs/<ticket>.md from spec-pass, or "clear as written">
 Playbook: <playbook name>[ -> <chained playbook>]
 Worktree: <path>  Branch: <branch>  Base: <base>
 
@@ -29,7 +30,14 @@ If you need a file outside these lists that another worker may be editing, repor
 2. Stage by path, check `git diff --cached --stat` before each commit, and use WIP commits instead of
    `git stash`.
 3. Record checks with `{{ZSTACK_DIR}}/scripts/zcheck.sh --name <check> -- <command>` on a clean tree at your head commit.
-4. Open the PR with the body from `{{ZSTACK_DIR}}/templates/pr-body.md` when the playbook says to. Leave merging and
+4. When the task leaves a product or behavior choice open and you choose rather than ask, note the
+   choice and why; it goes under `## Assumptions` (`list-your-assumptions`). A guess left off that list is
+   a review finding.
+5. Before you finish, answer every class in `{{ZSTACK_DIR}}/references/edge-cases.md` (and
+   `.git/zstack/edge-cases.md` when it exists) under `## Edge cases`: `N/A - <why>`, `covered - <test>`
+   or `open - <why>` (`walk-the-edge-classes`). A class that applies gets its test in the same commit as
+   the code.
+6. Open the PR with the body from `{{ZSTACK_DIR}}/templates/pr-body.md` when the playbook says to. Leave merging and
    deploying to the coordinator.
 
 ## Drive-by rule

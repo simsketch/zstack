@@ -13,6 +13,20 @@ Report these separately, each with its own proof. A missing one is written "not 
 "Shipped" and "live" may be written only with the deployed proof in hand. "Fixed" needs the reproduction
 passing at a named commit, and "passing" needs a recorded check at the head sha.
 
+## Assumptions and edge cases
+
+The evidence packet also says what the author guessed and which edge cases they checked:
+
+- `## Assumptions`: each product or behavior choice the request left open and the author made, as
+  `<the choice> - <why>`, or `None.` (`list-your-assumptions`). A product call opens the PR with `hold`
+  and goes to the human with options.
+- `## Edge cases`: one line per class in `<zstack dir>/references/edge-cases.md` and
+  `.git/zstack/edge-cases.md`: `N/A - <why>`, `covered - <test>` or `open - <why>`
+  (`walk-the-edge-classes`). An `open` line on money, permissions or personal data keeps the PR with the
+  human.
+
+A reviewer reports a guess the list does not name, and a class marked N/A that the diff hits, as findings.
+
 ## The four gates
 
 1. **Checks recorded at the head commit.** A check counts only when it ran on a clean tree (no

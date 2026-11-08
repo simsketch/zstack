@@ -10,8 +10,9 @@
 
 ## Steps
 
-1. Restate the feature and its definition of done in one or two lines. If done is unclear, ask the user
-   one question with options before writing code.
+1. Restate the feature and its definition of done in one or two lines. If the request is open (no
+   testable done, or a product choice left to you), run `spec-pass` first; for a single small gap, ask
+   the user one question with options before writing code.
 2. Name the data first: which records or fields are created, read, changed or deleted, which module owns
    each, and where it is stored. Write this as a short list in the PR description draft.
 3. Look for what already exists: a helper, component, endpoint or flag that does most of this. Reuse or
@@ -24,18 +25,19 @@
 6. Implement in small ordered commits, each one leaving the build green and revertable on its own.
 7. For any change that checks a value and then writes money, permissions or other contested state, add a
    concurrency test and fence the check and the write with the same lock, constraint or version check.
+   Walk the rest of `<zstack dir>/references/edge-cases.md` the same way: a test for each class that applies.
 8. Record the checks at the head commit on a clean tree: `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`
    for tests, and `<zstack dir>/scripts/zcheck.sh --name lint --no-count -- <lint command>` for checks without a test
    count.
 9. Write the PR body from `<zstack dir>/templates/pr-body.md`, including a `## How to test` block a human can follow
-   without reading the code.
+   without reading the code, `## Assumptions` (every open choice you made, or `None.`) and `## Edge cases`.
 10. Hand over to `land`.
 
 ## Done when
 
 Every behavior in the definition of done has a test (or a written reason why it cannot have one), the data
 list is in the PR body, the checks are recorded at the head commit with non-zero test counts, and the PR
-body carries a complete `## How to test` block.
+body carries a complete `## How to test` block, `## Assumptions` and an answer for every edge-case class.
 
 ## Principles
 
@@ -49,6 +51,10 @@ body carries a complete `## How to test` block.
   human with options and a recommendation.
 - [`leave-it-better-separately`](../references/principles/leave-it-better-separately.md): unrelated fixes go
   in separate `drive-by:` commits.
+- [`list-your-assumptions`](../references/principles/list-your-assumptions.md): open product choices are
+  written down where a reviewer will see them.
+- [`walk-the-edge-classes`](../references/principles/walk-the-edge-classes.md): each class gets a test or
+  a reason.
 
 ## Preferred shape
 

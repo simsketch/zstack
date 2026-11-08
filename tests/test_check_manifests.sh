@@ -15,7 +15,7 @@ copy_tree() {
 }
 
 d="$(copy_tree)"
-sed 's/"version": "1.0.0"/"version": "9.9.9"/' "$d/gemini-extension.json" > "$d/x" && mv "$d/x" "$d/gemini-extension.json"
+sed -E 's/"version": "[0-9.]+"/"version": "9.9.9"/' "$d/gemini-extension.json" > "$d/x" && mv "$d/x" "$d/gemini-extension.json"
 OUT="$(bash "$CHECK" "$d" 2>&1)"; RC=$?
 assert_eq 1 "$RC" "version mismatch fails"
 assert_contains "$OUT" "gemini-extension.json" "mismatch names the manifest"

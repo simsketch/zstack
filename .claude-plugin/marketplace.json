@@ -7,7 +7,7 @@
       "name": "zstack",
       "source": "./",
       "description": "A harness-agnostic engineering skill that routes each task to a playbook and a set of working principles, with small scripts for checks, evidence and handoffs.",
-      "version": "1.0.0"
+      "version": "1.1.0"
     }
   ]
 }

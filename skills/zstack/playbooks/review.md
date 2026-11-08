@@ -19,11 +19,17 @@
 4. If the diff touches auth, permissions, secrets, payments, crypto, input parsing at a trust boundary or
    infrastructure, and the `ship-secure` skill is installed, hand that part to it and include its findings.
    Without it, review those parts against the checklist in step 6 with extra care.
-5. Read the change against its stated intent: does it do what the ticket says, and only that?
+5. Read the change against its stated intent: does it do what the ticket says, and only that? Read
+   `## Assumptions`: compare every product or behavior choice in the diff with the ticket and its spec. A
+   choice the ticket did not settle and the list does not name is a major finding; a listed one that is a
+   product call needs `hold` until the human answers it.
 6. Check, in this order: correctness (edge cases, error paths, off-by-one, nulls), check-then-write races on
    money or permissions (a concurrency test must exist), data shape and migrations, security (input
    handling, secrets in code or logs, authorization on every new path), tests (they fail without the
-   change, and the count is non-zero), and readability.
+   change, and the count is non-zero), and readability. Then walk every class in
+   `<zstack dir>/references/edge-cases.md` (and `.git/zstack/edge-cases.md`) against the diff: a missing
+   `## Edge cases` section, a class marked N/A that the code hits, or a `covered` line whose test does
+   not exercise the class is a finding.
 7. Run the repo-wide guard tests and the area's tests yourself and record them:
    `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`. Check the PR's own claims against the records with
    `<zstack dir>/scripts/zcheck.sh --list <head sha>`.
@@ -38,7 +44,8 @@
 
 A single verdict (`PASS`, `CHANGES NEEDED` or `FIX FIRST`) is posted for a named head sha, every finding has
 a severity and `path:line`, security-sensitive parts were reviewed (by `ship-secure` when installed), and
-the checks the reviewer ran are recorded at that sha.
+the checks the reviewer ran are recorded at that sha, and the PR's `## Assumptions` and `## Edge cases`
+were checked against the diff.
 
 ## Principles
 
@@ -52,6 +59,10 @@ the checks the reviewer ran are recorded at that sha.
   logged or committed are a blocker.
 - [`fix-the-class`](../references/principles/fix-the-class.md): a defect found in review is checked for
   siblings in the same diff.
+- [`list-your-assumptions`](../references/principles/list-your-assumptions.md): a guess in the diff that
+  the PR does not list is a finding.
+- [`walk-the-edge-classes`](../references/principles/walk-the-edge-classes.md): the reviewer breaks the
+  change against the same checklist the author answered.
 
 ## Preferred shape
 

@@ -26,6 +26,13 @@ David Ondrej's skills
   Inspired: zStack is inspired in part by David Ondrej's agent-orchestration work
   (github.com/davidondrej/skills, MIT).
 
+"The Agentic Software Factory Is the Wrong Metaphor"
+  Author: Rob West (article), as discussed by Joe Maddalone in the video "Senior Engineers Are Using AI
+  Wrong and Software Factories Are Dumb" (https://www.youtube.com/watch?v=4Oq_gdhjYUw)
+  License: none claimed; ideas only, no text copied
+  Inspired: the `## Assumptions` section of the evidence packet, the edge-case checklist, and the
+  spec pass that triages tickets as clear or open before work starts.
+
 pstack-claude
   License: MIT
   Copyright: (c) 2026 Lauren Tan, as its LICENSE file states (a port by Michael Denyer)

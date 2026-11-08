@@ -1,9 +1,9 @@
 ---
 name: zstack
-description: Routes a non-trivial engineering goal to a playbook, an execution shape and a set of cited principles. Use for bugs and bug tickets (cause known or unknown), explaining how a system works or why it is built that way across files, choosing between approaches ("which approach should we take?"), new features, refactors, performance work, code or PR review, opening and landing PRs, "what should I test today", running work in parallel or overnight, "is it live" or "did it ship", taking over another agent's work, pausing cleanly, or when the human says they are busy testing. Answers to /zstack. Skip for one-line questions and trivial edits.
+description: Routes a non-trivial engineering goal to a playbook, an execution shape and a set of cited principles. Use for bugs and bug tickets (cause known or unknown), explaining how a system works or why it is built that way across files, choosing between approaches ("which approach should we take?"), turning an open or vague ticket into a spec, new features, refactors, performance work, code or PR review, opening and landing PRs, "what should I test today", running work in parallel or overnight, "is it live" or "did it ship", taking over another agent's work, pausing cleanly, or when the human says they are busy testing. Answers to /zstack. Skip for one-line questions and trivial edits.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   source: "https://github.com/simsketch/zstack"
 ---
 
@@ -37,9 +37,11 @@ fix this typo). Answer those directly.
 
 Work through these seven steps in order, every time.
 
-1. **Restate the goal and the definition of done** in one or two lines. If done is unclear and the work
-   is anything other than an investigation, ask one question. In human-busy mode, write the question to
-   the decision page, record a default and flag it `revisit`.
+1. **Restate the goal and the definition of done** in one or two lines, and triage it **clear** or
+   **open**. Clear: done is testable and no product choice (behavior, copy, a default, a flow) is left to
+   the builder. Open work that is anything other than an investigation routes through `spec-pass` first
+   (`Route: spec-pass -> feature`); for a single small gap, ask one question instead. In human-busy mode,
+   write the question to the decision page, record a default and flag it `revisit`.
 2. **Pick a playbook** from the catalog below. Overrides come before narrow matches: work the human wants
    to walk away from, or that spans days, goes to `autopilot-queue` (or a fleet wave when zstack-fleet is
    installed); "which approach is better?" goes to `prototype`. When the human is also busy, human-busy
@@ -75,7 +77,8 @@ Work through these seven steps in order, every time.
 Read every signal, in order. Each one can only shrink the shape, never grow it, and the smallest shape
 left after all six is the one you run.
 
-1. **Definition-of-done clarity.** While done is unclear, stay at inline or one subagent.
+1. **Definition-of-done clarity.** While done is unclear, stay at inline or one subagent. In a queue,
+   open tickets wait for their `spec-pass` while clear ones run.
 2. **Predicted file overlap.** Pieces that are likely to edit the same files join one lane or run in
    sequence.
 3. **Solo classes.** Migrations, auth and security, infra and CI workflows, and payments each run as
@@ -112,6 +115,7 @@ the gate that ends it, the principles it cites, and the shape it prefers.
 | `feature` | new behavior | data shape and owner named first, tests first where the repo has tests |
 | `refactor` | a structure change that must keep behavior | proof behavior held: passing tests or a recorded diff of outputs |
 | `prototype` | "which approach?" | a throwaway comparison that settles the choice, and the decision written down |
+| `spec-pass` | an open ticket: no testable done, or a product choice left to the builder | a written spec with every question answered or flagged `revisit`, then the playbook it routes to |
 | `review` | review a PR, branch or diff | a verdict of PASS, CHANGES NEEDED or FIX FIRST with findings by severity |
 | `babysit-pr` | drive an open PR to merge-ready | conflicts resolved, threads answered, checks recorded at the head commit |
 | `land` | open or land a PR | small ordered commits, the evidence packet in the body, merge pinned to the verified head |
@@ -122,7 +126,7 @@ the gate that ends it, the principles it cites, and the shape it prefers.
 | `pause` | stop cleanly for now | a handoff file and a WIP commit, with nothing left only in a working tree |
 | `human-busy` | the human says they are busy, or two questions sit unanswered for 30 minutes | one decision page, safe defaults flagged `revisit`, work continuing on what needs no answer |
 
-Chains: `debug` always continues into `bug-class-sweep` once the cause is known. Work that ends in a PR
+Chains: `spec-pass` continues into the playbook the clarified goal routes to. `debug` always continues into `bug-class-sweep` once the cause is known. Work that ends in a PR
 continues into `land`. A failed item on a manual-test checklist opens a bug, which starts `debug` or
 `bug-class-sweep`.
 
@@ -141,6 +145,8 @@ checks that show you followed it. Read the leaf before you cite it.
 - `data-shape-first`: when starting a feature. Name the data, its shape and its owner before any UI or
   endpoint.
 - `subtract-first`: when about to add code, config or a dependency. Try removing or reusing first.
+- `walk-the-edge-classes`: before calling a change done. Answer every class in
+  `references/edge-cases.md` as N/A with a reason, covered by a named test, or open with the risk.
 
 **Evidence**
 
@@ -174,6 +180,8 @@ checks that show you followed it. Read the leaf before you cite it.
   it passes the drive-by test; otherwise ticket it.
 - `spend-attention-carefully`: when you have questions. Batch them, and keep working on whatever does
   not depend on the answers.
+- `list-your-assumptions`: when you settle an open product or behavior choice yourself. List it with why
+  under `## Assumptions`; a product call opens the PR with `hold`.
 
 **Meta**
 
@@ -189,6 +197,11 @@ Three words, kept apart in every report (details in `references/evidence.md`):
 - **verified**: someone checked the behavior there, with who and when
 
 Never write "shipped" or "live" without the deployed evidence.
+
+Every PR body also carries `## Assumptions` (each open product choice the author made, with why, or
+`None.`) and `## Edge cases` (one line per class in `references/edge-cases.md` and the repo's
+`.git/zstack/edge-cases.md`). A product-call assumption, or an `open` edge case on money, permissions or
+personal data, keeps the PR with the human (`hold`) until they answer.
 
 Four gates before a merge:
 
@@ -232,6 +245,8 @@ full brief shape is `<zstack dir>/templates/worker-brief.md`):
 2. The playbook it is running, and the route line.
 3. The principles in force, by name.
 4. The drive-by rule, no CI polling loops, no credential reads, and "report any guard that blocks you".
+5. The spec path from `spec-pass` (or "clear as written"), and that the PR lists its assumptions and
+   answers the edge-case checklist.
 
 A worker that receives a brief without these lines asks for them before starting; a headless run that
 cannot ask stops and reports the missing lines.
@@ -245,6 +260,8 @@ Scripts (bash 3.2 and Python 3 standard library, state under `.git/zstack/`):
 - `<zstack dir>/scripts/ledger.py`: record merges, reverts and bugs; `stats`, `export`, `import`
 - `<zstack dir>/scripts/trust.sh`: per-class track record and effective trust level; `--gate <class>`
 - `<zstack dir>/scripts/checklist.py`: `generate` the manual-test checklist and `record` results back to PRs
+
+Edge-case checklist: `<zstack dir>/references/edge-cases.md`.
 
 Templates: `<zstack dir>/templates/pr-body.md`, `decision-page.md`, `sweep-report.md`, `handoff.md`,
 `worker-brief.md`, `classes.conf`, `config`, `smoke.md`.

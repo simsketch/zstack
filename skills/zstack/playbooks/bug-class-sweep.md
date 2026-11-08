@@ -25,7 +25,9 @@ manual-test failure opens a bug. The goal is to find and handle every other inst
 7. Fix confirmed hits in this batch when they share the same fix and their files sit inside this lane's
    lease, one commit per fix. Ticket every other confirmed or suspect hit by impact, with the `path:line`
    and reasoning attached.
-8. Write the "why tests and QA missed it" note: one paragraph on the gap that let the class through.
+8. Write the "why tests and QA missed it" note: one paragraph on the gap that let the class through. When
+   the class is not in `<zstack dir>/references/edge-cases.md` or `.git/zstack/edge-cases.md`, append it to
+   the repo file with the next number, the question to ask, and this bug as its example.
 9. Add a guardrail in its own commit: a lint rule, guard test or validator that fails on the pattern.
    Prove it by running it against the unfixed code (it fails) and the fixed code (it passes), and record it
    with `<zstack dir>/scripts/zcheck.sh --name <guardrail> -- <command>`.
