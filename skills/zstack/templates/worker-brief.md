@@ -37,7 +37,11 @@ If you need a file outside these lists that another worker may be editing, repor
    `.git/zstack/edge-cases.md` when it exists) under `## Edge cases`: `N/A - <why>`, `covered - <test>`
    or `open - <why>` (`walk-the-edge-classes`). A class that applies gets its test in the same commit as
    the code.
-6. Open the PR with the body from `{{ZSTACK_DIR}}/templates/pr-body.md` when the playbook says to. Leave merging and
+6. Reuse before you write: search for an existing helper, component, constant or copy string before
+   adding one, and list what you used under `## Reused`. Domain logic (business rules, money math, dates
+   and time zones, permissions, masking, pricing, shared copy) lives in one place
+   (`one-copy-of-domain-logic`).
+7. Open the PR with the body from `{{ZSTACK_DIR}}/templates/pr-body.md` when the playbook says to. Leave merging and
    deploying to the coordinator.
 
 ## Drive-by rule

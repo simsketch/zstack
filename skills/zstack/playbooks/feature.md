@@ -16,7 +16,8 @@
 2. Name the data first: which records or fields are created, read, changed or deleted, which module owns
    each, and where it is stored. Write this as a short list in the PR description draft.
 3. Look for what already exists: a helper, component, endpoint or flag that does most of this. Reuse or
-   extend it before adding a new one, and remove anything the feature makes dead.
+   extend it before adding a new one, and remove anything the feature makes dead. List what you reused
+   under `## Reused`; domain logic gets no second copy.
 4. Write the planned file paths one per line to a scratch file and run
    `<zstack dir>/scripts/classify.sh --files <that file>`. If the result is `solo`, the PR opens with the `hold` label
    and runs as its own piece of work.
@@ -51,6 +52,8 @@ body carries a complete `## How to test` block, `## Assumptions` and an answer f
   human with options and a recommendation.
 - [`leave-it-better-separately`](../references/principles/leave-it-better-separately.md): unrelated fixes go
   in separate `drive-by:` commits.
+- [`one-copy-of-domain-logic`](../references/principles/one-copy-of-domain-logic.md): domain logic is
+  reused, never copied.
 - [`list-your-assumptions`](../references/principles/list-your-assumptions.md): open product choices are
   written down where a reviewer will see them.
 - [`walk-the-edge-classes`](../references/principles/walk-the-edge-classes.md): each class gets a test or

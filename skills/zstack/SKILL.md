@@ -3,7 +3,7 @@ name: zstack
 description: Routes a non-trivial engineering goal to a playbook, an execution shape and a set of cited principles. Use for bugs and bug tickets (cause known or unknown), explaining how a system works or why it is built that way across files, choosing between approaches ("which approach should we take?"), turning an open or vague ticket into a spec, new features, refactors, performance work, code or PR review, opening and landing PRs, "what should I test today", running work in parallel or overnight, "is it live" or "did it ship", taking over another agent's work, pausing cleanly, or when the human says they are busy testing. Answers to /zstack. Skip for one-line questions and trivial edits.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   source: "https://github.com/simsketch/zstack"
 ---
 
@@ -145,6 +145,9 @@ checks that show you followed it. Read the leaf before you cite it.
 - `data-shape-first`: when starting a feature. Name the data, its shape and its owner before any UI or
   endpoint.
 - `subtract-first`: when about to add code, config or a dependency. Try removing or reusing first.
+- `one-copy-of-domain-logic`: when about to write a helper or change domain logic. Search first, list
+  what you reused under `## Reused`, change every copy, and never add a second copy of business rules,
+  money, dates, permissions, masking, pricing or shared copy.
 - `walk-the-edge-classes`: before calling a change done. Answer every class in
   `references/edge-cases.md` as N/A with a reason, covered by a named test, or open with the risk.
 
@@ -200,7 +203,7 @@ Never write "shipped" or "live" without the deployed evidence.
 
 Every PR body also carries `## Assumptions` (each open product choice the author made, with why, or
 `None.`) and `## Edge cases` (one line per class in `references/edge-cases.md` and the repo's
-`.git/zstack/edge-cases.md`). A product-call assumption, or an `open` edge case on money, permissions or
+`.git/zstack/edge-cases.md`), and `## Reused` (what existing code it used or extended). A product-call assumption, or an `open` edge case on money, permissions or
 personal data, keeps the PR with the human (`hold`) until they answer.
 
 Four gates before a merge:

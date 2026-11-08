@@ -54,6 +54,11 @@ From `<zstack dir>/references/edge-cases.md` (and `.git/zstack/edge-cases.md` wh
 8. Access by membership: <...>
 9. Limits, pages and caps: <...>
 10. Other clients and old versions: <...>
+11. Logic that exists elsewhere: <...>
+
+## Reused
+
+- <existing helper, component or module used or extended, with its path> (or "Nothing to reuse." after searching; name any new shared helper and why nothing fit)
 
 ## Drive-bys
 

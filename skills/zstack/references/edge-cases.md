@@ -51,6 +51,11 @@ A class you did not think about is not N/A. If you are unsure whether it applies
     older client, cached page or older API version breaks against it. Ask: does every client need the same
     change, and what does an old client send or expect?
 
+11. **Logic that exists elsewhere.** The rule, calculation, mask, date handling, permission check, price
+    or copy you changed also lives in another file, port, service or client, and only one copy changed; or
+    the change adds a second copy instead of reusing the first. Ask: did you search for the other copies,
+    and did you change every one or remove the extras?
+
 ## Keeping it current
 
 `bug-class-sweep` adds a class to `.git/zstack/edge-cases.md` when its class is missing from both lists,

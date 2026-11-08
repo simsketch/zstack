@@ -63,11 +63,11 @@ When nothing fits, the agent writes a one-off playbook in the same shape and sav
 
 ## Principles
 
-Twenty-one principles, each a short leaf in `skills/zstack/references/principles/` with the rule, why it
+Twenty-two principles, each a short leaf in `skills/zstack/references/principles/` with the rule, why it
 exists and the checks that show it was followed.
 
 - **Method:** `reproduce-first`, `fix-the-class`, `smallest-reversible-change`, `data-shape-first`,
-  `subtract-first`, `walk-the-edge-classes`
+  `subtract-first`, `walk-the-edge-classes`, `one-copy-of-domain-logic`
 - **Evidence:** `evidence-before-the-word`, `three-words`, `empty-check-fails`,
   `numbers-from-tested-queries`
 - **Parallel work:** `one-owner-per-file`, `rebase-once-late`, `count-the-living`
@@ -94,7 +94,8 @@ workers at a time, at most three in any two minutes.
 
 Every PR body (template: `skills/zstack/templates/pr-body.md`) carries the route, the principles and
 what each changed, the PR class, the checks recorded at the head commit, a "How to test" block,
-the author's assumptions, answers to the edge-case checklist, drive-bys and follow-ups. Status is reported with three separate words:
+the author's assumptions, answers to the edge-case checklist, what existing code it reused, drive-bys
+and follow-ups. Status is reported with three separate words:
 
 - **implemented:** merged, with the merge sha
 - **deployed:** running in a named environment, proven by the serving artifact containing the commit
@@ -113,16 +114,24 @@ nobody asked about. Three habits move both problems ahead of the merge:
 - **Assumptions.** Every PR lists, under `## Assumptions`, each product or behavior choice the request
   left open and the author made, with why. A product call opens the PR with `hold` and goes to you with
   options. Reviewers report any guess the list leaves out.
-- **Edge-case checklist.** `skills/zstack/references/edge-cases.md` lists ten generic classes: stale or
+- **Edge-case checklist.** `skills/zstack/references/edge-cases.md` lists eleven generic classes: stale or
   out-of-order writes, partial failure, paths skipped when a flag or channel is off, masking gaps, checks
   outside the lock, time zone and date boundaries, money math, access by membership, silent page limits,
-  and other clients or old versions. Each PR answers every class as N/A with a reason, covered by a named
+  other clients or old versions, and logic that exists elsewhere. Each PR answers every class as N/A with a reason, covered by a named
   test, or open with the risk, and reviewers walk the same list. Repo classes go in
   `.git/zstack/edge-cases.md`, and a bug-class sweep adds new ones there.
 - **Spec pass.** A ticket with no testable done, or one that leaves a product choice to the builder, is
   open. It gets a cheap read-only `spec-pass` first: questions answered from the code and docs where they
   can be, proposed answers with options for the rest, and the edge cases decided, written to
   `.git/zstack/specs/`. In a queue, clear tickets keep running while open ones wait for answers.
+
+## One copy of domain logic
+
+Agents write a new helper faster than they find the old one. zStack makes them search first and list
+what they reused under `## Reused`. Domain logic (business rules, money math, dates and time zones,
+permissions, masking, pricing, copy shared across clients) lives in one place: a new second copy is a
+blocking review finding, and a change to logic that already lives in several places changes every copy.
+Incidental duplication, such as test setup or UI glue, is fine until its third repeat.
 
 ## Bug-class sweeps
 

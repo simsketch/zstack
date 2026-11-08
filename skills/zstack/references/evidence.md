@@ -25,6 +25,9 @@ The evidence packet also says what the author guessed and which edge cases they 
   (`walk-the-edge-classes`). An `open` line on money, permissions or personal data keeps the PR with the
   human.
 
+- `## Reused`: the existing helpers or modules the change used or extended, or why nothing fit
+  (`one-copy-of-domain-logic`). A new second copy of domain logic is a blocking finding.
+
 A reviewer reports a guess the list does not name, and a class marked N/A that the diff hits, as findings.
 
 ## The four gates
