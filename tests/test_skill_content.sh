@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tests that the skill text stays consistent: every principle the router indexes has a leaf, the
-# PR body template carries the evidence sections, and the edge-case checklist is numbered 1..10.
+# PR body template carries the evidence sections, and the edge-case checklist is numbered 1..11.
 # shellcheck source=tests/helpers.sh
 . "$(dirname "$0")/helpers.sh"
 SK="$ZT_ROOT/skills/zstack"
@@ -16,13 +16,13 @@ for f in "$SK"/references/principles/*.md; do
 done
 
 body="$(cat "$SK/templates/pr-body.md")"
-for s in "## Route" "## Principles" "## Evidence" "## How to test" "## Assumptions" "## Edge cases" "## Drive-bys" "## Follow-ups"; do
+for s in "## Route" "## Principles" "## Evidence" "## How to test" "## Assumptions" "## Edge cases" "## Reused" "## Drive-bys" "## Follow-ups"; do
   assert_contains "$body" "$s" "pr-body has $s"
 done
 
 classes="$(grep -cE '^[0-9]+\. \*\*' "$SK/references/edge-cases.md")"
-assert_eq 10 "$classes" "edge-case checklist has ten classes"
-tmpl="$(sed -n '/^## Edge cases/,/^## Drive-bys/p' "$SK/templates/pr-body.md" | grep -cE '^[0-9]+\. ')"
+assert_eq 11 "$classes" "edge-case checklist has eleven classes"
+tmpl="$(sed -n '/^## Edge cases/,/^## Reused/p' "$SK/templates/pr-body.md" | grep -cE '^[0-9]+\. ')"
 assert_eq "$classes" "$tmpl" "pr-body answers every edge-case class"
 
 brief="$(cat "$SK/templates/worker-brief.md")"

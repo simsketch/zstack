@@ -29,7 +29,9 @@
    change, and the count is non-zero), and readability. Then walk every class in
    `<zstack dir>/references/edge-cases.md` (and `.git/zstack/edge-cases.md`) against the diff: a missing
    `## Edge cases` section, a class marked N/A that the code hits, or a `covered` line whose test does
-   not exercise the class is a finding.
+   not exercise the class is a finding. A new second copy of domain logic (business rules, money math,
+   dates and time zones, permissions, masking, pricing, shared copy) is a blocker: name the existing copy.
+   Incidental duplication (test setup, UI glue) is not a finding until its third repeat.
 7. Run the repo-wide guard tests and the area's tests yourself and record them:
    `<zstack dir>/scripts/zcheck.sh --name <check> -- <command>`. Check the PR's own claims against the records with
    `<zstack dir>/scripts/zcheck.sh --list <head sha>`.
@@ -61,6 +63,8 @@ were checked against the diff.
   siblings in the same diff.
 - [`list-your-assumptions`](../references/principles/list-your-assumptions.md): a guess in the diff that
   the PR does not list is a finding.
+- [`one-copy-of-domain-logic`](../references/principles/one-copy-of-domain-logic.md): a second copy of
+  domain logic blocks the merge.
 - [`walk-the-edge-classes`](../references/principles/walk-the-edge-classes.md): the reviewer breaks the
   change against the same checklist the author answered.
 
